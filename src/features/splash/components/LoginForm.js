@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
-import Fundologin from './Fundologin.png'; // Altere o caminho se a sua imagem estiver em outro local
-import logoEmpresa from './logoEmpresa.png'
+import './LoginForm.css'
+import LoginService from '../services/LoginService';
+import useAuthStore from '../../../shared/store/auth-store';
+import { jwtDecode } from 'jwt-decode';
+import Fundologin from '../assets/Fundologin.png'
+import logoEmpresa from '../assets/logoEmpresa.png'
 import { Link, useNavigate } from 'react-router-dom';
 
-const Login = () => {
+const LoginForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [emailError, setEmailError] = useState('');
@@ -13,7 +17,7 @@ const Login = () => {
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!email) {
-            setEmailError('O e-mail é obrigatório.');
+            setEmailError('O e-mail  é obrigatório.');
             return false;
         }
         if (!emailRegex.test(email)) {
@@ -58,30 +62,42 @@ const Login = () => {
 
     const navigate = useNavigate(); // Inicialize o useNavigate
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
+  //const { login } = useAuth()
+  const {setAuthData} = useAuthStore();
+
+
+  const [form,setForm] = React.useState({email: "", password: ''})
+
+    const submitForm = async (e) => {
+        e.preventDefault();
         const isEmailValid = validateEmail(email);
         const isPasswordValid = validatePassword(password);
 
         if (isEmailValid && isPasswordValid) {
-            // Lógica de autenticação aqui (verificação de credenciais)
-            alert('Login efetuado com sucesso!');
-            navigate('/home'); // Redireciona para a tela inicial
-        };
+        
+        // Isso eu pego do backend
+        const responseData = await LoginService.login({email, password})
+        const receivedTokenFromBackend = responseData.token;
+        localStorage.setItem("accessToken", receivedTokenFromBackend)
+
+        const decodedUser = jwtDecode(receivedTokenFromBackend);
+        // Armazena o token e as informações decodificadas no Zustand
+        setAuthData(receivedTokenFromBackend, decodedUser);
+        console.log('Dados do usuário decodificados e armazenados:', decodedUser);
+        
+        navigate("/home")
+      }
+
     }
-
-
-
         return (
-            <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8"
-                style={{ backgroundImage: `url(${Fundologin})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}>
+            <div className="slideIn bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
                 <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
                     {/* Substitua o src pelo link do logo se ele estiver online, ou pelo caminho local */}
                 </div>
 
                 <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
                     <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-                        <form className="space-y-6" onSubmit={handleSubmit}>
+                        <form className="space-y-6" onSubmit={submitForm}>
                             <div>
                                 <img
                                     className="mx-auto h-50 w-auto"
@@ -181,4 +197,4 @@ const Login = () => {
         );
     };
 
-    export default Login;
+export default LoginForm;

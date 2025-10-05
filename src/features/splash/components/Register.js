@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Fundologin from './Fundologin.png';
-import logoEmpresa from './logoEmpresa.png'
+import Fundologin from '../assets/Fundologin.png';
+import logoEmpresa from '../assets/logoEmpresa.png'
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -77,7 +77,7 @@ const Register = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
             <img
-          className="mx-auto h-30 w-auto"
+          className="mx-auto h-50 w-auto"
           src={logoEmpresa}
           alt="MASI"
         />
