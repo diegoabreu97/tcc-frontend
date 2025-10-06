@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Fundologin from '../assets/Fundologin.png';
 import logoEmpresa from '../assets/logoEmpresa.png'
 
 const Register = () => {
@@ -69,13 +68,12 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8"
-      style={{ backgroundImage: `url(${Fundologin})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}>
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-      </div>
+     <div className="slideIn bg-gray-10 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+          <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
+          </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-white py-8 px-4 shadow-xl sm:rounded-lg sm:px-10 border border-gray-100">
             <img
           className="mx-auto h-50 w-auto"
           src={logoEmpresa}
@@ -189,9 +187,9 @@ const Register = () => {
               <label htmlFor="agreed" className="ml-2 block text-sm text-gray-900">
                 Eu li e concordo com os 
                 <a href="#" className="font-medium text-teal-600 hover:text-teal-500 ml-1">
-                  Termos e Condições
-                </a>
-                e com
+                  Termos e Condições 
+                </a><br/>
+                   e com
                 <a href="#" className="font-medium text-teal-600 hover:text-teal-500 ml-1">
                   Política de Privacidade.
                 </a>

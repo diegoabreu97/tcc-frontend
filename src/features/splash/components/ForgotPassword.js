@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Link} from 'react-router-dom'; // Importei BrowserRouter
-import FundoLogin from '../assets/Fundologin.png'
 import logoEmpresa from '../assets/logoEmpresa.png'
-import SplashScreenForgotPassword from '../SplashScrenForgotPassword';
 
 // Este é o componente real, que contém toda a lógica e UI.
 const ForgotPassword = () => { 
@@ -39,11 +37,8 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div 
-            className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
-            // Mantendo o fundo estilizado com a imagem placeholder
-            style={{ backgroundImage: `url(${FundoLogin})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}
-        >
+        <div className="slideIn bg-gray-10 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+                    
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="bg-white py-8 px-4 shadow-xl sm:rounded-lg sm:px-10 border border-gray-100">
                     <img

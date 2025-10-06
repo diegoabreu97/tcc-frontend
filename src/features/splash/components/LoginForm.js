@@ -3,7 +3,6 @@ import './LoginForm.css'
 import LoginService from '../services/LoginService';
 import useAuthStore from '../../../shared/store/auth-store';
 import { jwtDecode } from 'jwt-decode';
-import Fundologin from '../assets/Fundologin.png'
 import logoEmpresa from '../assets/logoEmpresa.png'
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -90,13 +89,13 @@ const LoginForm = () => {
 
     }
         return (
-            <div className="slideIn bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+            <div className="slideIn bg-gray-10 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
                 <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
                     {/* Substitua o src pelo link do logo se ele estiver online, ou pelo caminho local */}
                 </div>
 
                 <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                    <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+                    <div className="bg-white py-8 px-4 shadow-xl sm:rounded-lg sm:px-10 border border-gray-100">
                         <form className="space-y-6" onSubmit={submitForm}>
                             <div>
                                 <img

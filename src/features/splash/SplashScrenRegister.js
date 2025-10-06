@@ -1,9 +1,9 @@
 import React from 'react';
 import Fundologin from './assets/Fundologin.png'
-import ForgotPassword from './components/ForgotPassword';
+import Register from './components/Register';
 
 
-const SplashScreenForgotPassword = () => {
+const SplashScreenRegister = () => {
   return (
     <div
       className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
@@ -14,10 +14,10 @@ const SplashScreenForgotPassword = () => {
 
       {/* Formulário sobreposto com z-index para ficar acima do overlay */}
       <div className="relative z-50 w-1000 z-50" >
-        <ForgotPassword />
+        <Register />
       </div>  
     </div>
   );
 };
 
-export default SplashScreenForgotPassword;
+export default SplashScreenRegister;
