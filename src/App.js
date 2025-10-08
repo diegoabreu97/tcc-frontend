@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom';
-import HomeScreen from './HomeScreen'; // Importe a tela inicial
+import HomeScreen from './features/home/HomeScreen';
 import VaccineConsultation from './Vacinas';
 import Medicamentos from './Medicamentos';
 import SplashScreen from './features/splash/SplashScreen';
@@ -13,7 +13,7 @@ const App = () => {
         <Route path="/" element={<SplashScreen />} />
         <Route path="/forgot-password" element={<SplashScreenForgotPassword />} />
         <Route path="/register" element={<SplashScreenRegister/>} />
-        <Route path="/home" element={<HomeScreen />} /> {/* Nova rota para a tela inicial */}
+        <Route path="/home" element={<HomeScreen/>} />
         <Route path="/vacinas" element={<VaccineConsultation />} />
         <Route path="/medicamentos" element={<Medicamentos/>} />
       </Routes>
