@@ -25,6 +25,7 @@ const LoginService = {
         errorMessage = error.response.data.message;
       }
       
+      // Lança um erro para ser capturado no componente
       throw new Error(errorMessage);
     }
   },
@@ -36,7 +37,7 @@ const LoginService = {
    */
   async login(loginData) {
     try {
-      // Usa a instância 'api' para fazer a chamada. A baseURL já está configurada.
+      // Usa a instância 'api' para fazer a chamada.
       const response = await api.post('/v1/api/auth/login', loginData);
       return response.data;
     } catch (error) {
@@ -48,7 +49,8 @@ const LoginService = {
       } else if (error.response && error.response.data && error.response.data.message) {
         errorMessage = error.response.data.message;
       }
-
+      
+      // Lança um erro para ser capturado no componente
       throw new Error(errorMessage);
     }
   }

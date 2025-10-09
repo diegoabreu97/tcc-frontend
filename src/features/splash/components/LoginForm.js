@@ -7,16 +7,26 @@ import logoEmpresa from '../assets/logoEmpresa.png'
 import { Link, useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
+    // --- ESTADOS ---
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [emailError, setEmailError] = useState('');
-    const [passwordStrength, setPasswordStrength] = useState('Fraca');
     const [passwordError, setPasswordError] = useState('');
+    const [passwordStrength, setPasswordStrength] = useState('Fraca');
 
+    // ESTADOS para controle da API e feedback visual
+    const [isLoading, setIsLoading] = useState(false);
+    const [apiError, setApiError] = useState('');
+
+    // --- HOOKS E STORES ---
+    const navigate = useNavigate();
+    const { setAuthData } = useAuthStore(); // Usando o stub/mock
+
+    // --- FUNÇÕES DE VALIDAÇÃO (Mantidas) ---
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!email) {
-            setEmailError('O e-mail  é obrigatório.');
+            setEmailError('O e-mail é obrigatório.');
             return false;
         }
         if (!emailRegex.test(email)) {
@@ -59,141 +69,165 @@ const LoginForm = () => {
         return true;
     };
 
-    const navigate = useNavigate(); // Inicialize o useNavigate
-
-  //const { login } = useAuth()
-  const {setAuthData} = useAuthStore();
-
-
-  const [form,setForm] = React.useState({email: "", password: ''})
-
+    // --- FUNÇÃO DE SUBMISSÃO CORRIGIDA COM TRY/CATCH E LOADING ---
     const submitForm = async (e) => {
         e.preventDefault();
+        setApiError(''); // Limpa erros de API anteriores
+
+        // 1. Validação local do formulário
         const isEmailValid = validateEmail(email);
         const isPasswordValid = validatePassword(password);
 
-        if (isEmailValid && isPasswordValid) {
-        
-        // Isso eu pego do backend
-        const responseData = await LoginService.login({email, password})
-        const receivedTokenFromBackend = responseData.token;
-        localStorage.setItem("accessToken", receivedTokenFromBackend)
+        if (!isEmailValid || !isPasswordValid) {
+            return;
+        }
 
-        const decodedUser = jwtDecode(receivedTokenFromBackend);
-        // Armazena o token e as informações decodificadas no Zustand
-        setAuthData(receivedTokenFromBackend, decodedUser);
-        console.log('Dados do usuário decodificados e armazenados:', decodedUser);
-        
-        navigate("/home")
-      }
+        setIsLoading(true); // 2. Inicia o carregamento
 
-    }
-        return (
-            <div className="slideIn bg-gray-10 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-                <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-                    {/* Substitua o src pelo link do logo se ele estiver online, ou pelo caminho local */}
-                </div>
+        try {
+            // 3. Chamada de serviço (onde o Axios é invocado - USANDO MOCK DE SERVIÇO AQUI)
+            const responseData = await LoginService.login({ email, password });
 
-                <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                    <div className="bg-white py-8 px-4 shadow-xl sm:rounded-lg sm:px-10 border border-gray-100">
-                        <form className="space-y-6" onSubmit={submitForm}>
-                            <div>
-                                <img
-                                    className="mx-auto h-50 w-auto"
-                                    src={logoEmpresa} // Use a variável 'logo' aqui
-                                    alt="MASI - Mapeamento Atendimento de Saúde em Indaiatuba"
-                                /><br />
-                                <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                                    Bem vindo!
-                                </h2><br /><br />
-                                <label htmlFor="email" className="sr-only">
-                                    Endereço de Email
-                                </label>
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    autoComplete="email"
-                                    value={email}
-                                    onChange={(e) => {
-                                        setEmail(e.target.value);
-                                        validateEmail(e.target.value);
-                                    }}
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
-                                    placeholder="Endereço de Email"
-                                />
-                                {emailError && <p className="mt-2 text-sm text-red-600">{emailError}</p>}
-                            </div>
+            // 4. Sucesso: processa o token
+            const receivedTokenFromBackend = responseData.token;
+            localStorage.setItem("accessToken", receivedTokenFromBackend)
 
-                            <div>
-                                <label htmlFor="password" className="sr-only">
-                                    Senha
-                                </label>
-                                <div className="relative rounded-md shadow-sm">
-                                    <input
-                                        id="password"
-                                        name="password"
-                                        type="password"
-                                        autoComplete="current-password"
-                                        value={password}
-                                        onChange={(e) => {
-                                            setPassword(e.target.value);
-                                            checkPasswordStrength(e.target.value);
-                                            validatePassword(e.target.value);
-                                        }}
-                                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
-                                        placeholder="Senha"
-                                    />
-                                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5">
-                                        <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                            <path
-                                                d="M10 12a2 2 0 100-4 2 2 0 000 4z"
-                                            />
-                                            <path
-                                                d="M10 0a10 10 0 100 20 10 10 0 000-20zM2 10a8 8 0 1116 0A8 8 0 012 10z"
-                                            />
-                                        </svg>
-                                    </div>
-                                </div>
-                                {passwordError ? (
-                                    <p className="mt-2 text-sm text-red-600">{passwordError}</p>
-                                ) : (
-                                    <p className={`mt-2 text-sm ${passwordStrength === 'Forte' ? 'text-green-600' : passwordStrength === 'Média' ? 'text-yellow-600' : 'text-red-600'}`}>
-                                        Força da senha: {passwordStrength}
-                                    </p>
-                                )}
-                            </div>
+            const decodedUser = jwtDecode(receivedTokenFromBackend); // Usando MOCK de jwtDecode
+            setAuthData(receivedTokenFromBackend, decodedUser); // Usando MOCK de setAuthData
 
-                            <div className="flex items-center justify-end">
-                                <div className="text-sm">
-                                    <Link to="/forgot-password" className="font-medium text-teal-600 hover:text-teal-500">
-                                        Esqueceu a senha?
-                                    </Link>
-                                </div>
-                            </div>
+            console.log('Login bem-sucedido. Redirecionando para /home.');
+            // navigate("/home"); // Descomente na sua aplicação real
 
-                            <div>
-                                <button
-                                    type="submit"
-                                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
-                                >
-                                    Login
-                                </button>
-                            </div>
-                        </form>
+        } catch (error) {
+            // 5. Captura e exibe o erro
+            console.error('Erro de login capturado no componente:', error.message);
+            setApiError(error.message);
+        } finally {
+            // 6. Finaliza o carregamento
+            setIsLoading(false);
+        }
+    };
 
-                        <div className="mt-6 text-center text-sm">
-                            <span className="text-gray-600">
-                                Não possui conta?
-                            </span>
-                            <Link to="/register" className="font-medium text-teal-600 hover:text-teal-500 ml-1">
-                                Registre-se agora
-                            </Link>
+    return (
+        <div className="slideIn bg-gray-10 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+            <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
+                {/* ... (Logo e Título) ... */}
+            </div>
+
+            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+                <div className="bg-white py-8 px-4 shadow-xl sm:rounded-lg sm:px-10 border border-gray-100">
+                    {/* O onSubmit no form garante que o botão type="submit" funcione */}
+                    <form className="space-y-6" onSubmit={submitForm}>
+                        <div>
+                            {/* Substituído import logoEmpresa por placeholder */}
+                            <img
+                                className="mx-auto h-50 w-auto"
+                                src={logoEmpresa}
+                                alt="MASI Logo Placeholder"
+                            />
+
+                            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                                Bem vindo!
+                            </h2><br /><br />
+
+                            <label htmlFor="email" className="sr-only">
+                                Endereço de Email
+                            </label>
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                autoComplete="email"
+                                value={email}
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                    validateEmail(e.target.value);
+                                }}
+                                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                                placeholder="Endereço de Email (Tente 'fail@test.com' para simular erro)"
+                                disabled={isLoading}
+                            />
+                            {emailError && <p className="mt-2 text-sm text-red-600">{emailError}</p>}
                         </div>
+
+                        <div>
+                            <label htmlFor="password" className="sr-only">
+                                Senha
+                            </label>
+                            <div className="relative rounded-md shadow-sm">
+                                <input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    autoComplete="current-password"
+                                    value={password}
+                                    onChange={(e) => {
+                                        setPassword(e.target.value);
+                                        checkPasswordStrength(e.target.value);
+                                        validatePassword(e.target.value);
+                                    }}
+                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                                    placeholder="Senha"
+                                    disabled={isLoading}
+                                />
+                                {/* ... (Seu ícone SVG) ... */}
+                            </div>
+                            {passwordError ? (
+                                <p className="mt-2 text-sm text-red-600">{passwordError}</p>
+                            ) : (
+                                <p className={`mt-2 text-sm ${passwordStrength === 'Forte' ? 'text-green-600' : passwordStrength === 'Média' ? 'text-yellow-600' : 'text-red-600'}`}>
+                                    Força da senha: {passwordStrength}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* NOVO: EXIBIÇÃO DE ERRO DA API */}
+                        {apiError && (
+                            <div className="p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-md text-sm text-center font-medium">
+                                {apiError}
+                            </div>
+                        )}
+
+                        <div className="flex items-center justify-end">
+                            <div className="text-sm">
+                                <Link to="/forgot-password" className="font-medium text-teal-600 hover:text-teal-500">
+                                    Esqueceu a senha?
+                                </Link>
+                            </div>
+                        </div>
+
+                        <div>
+                            <button
+                                type="submit"
+                                disabled={isLoading} // Impede múltiplos envios
+                                className={`w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white transition duration-150
+                                    ${isLoading ? 'bg-teal-400 cursor-not-allowed' : 'bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500'}`
+                                }
+                            >
+                                {isLoading ? (
+                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                ) : (
+                                    'Login'
+                                )}
+                            </button>
+                        </div>
+                    </form>
+
+                    <div className="mt-6 text-center text-sm">
+                        <span className="text-gray-600">
+                            Não possui conta?
+                        </span>
+                        <Link to="/register" className="font-medium text-teal-600 hover:text-teal-500 ml-1">
+                            Registre-se agora
+                        </Link>
                     </div>
                 </div>
             </div>
-        );
-    };
+        </div>
+    );
+};
 
-export default LoginForm;
+export default LoginForm
