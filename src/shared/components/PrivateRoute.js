@@ -7,7 +7,7 @@ const PrivateRoute = ({children}) => {
   const {user} = useAuthStore();
   return (
 
-    user != null ? children : <Navigate to={"/login"} replace />
+    user != null ? children : <Navigate to={"/"} replace />
   
   )
 }

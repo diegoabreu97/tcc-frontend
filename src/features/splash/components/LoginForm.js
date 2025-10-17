@@ -5,24 +5,27 @@ import useAuthStore from '../../../shared/store/auth-store';
 import { jwtDecode } from 'jwt-decode';
 import logoEmpresa from '../assets/logoEmpresa.png'
 import { Link, useNavigate } from 'react-router-dom';
+import useUserStore from '../../../shared/store/user-store';
 
-const LoginForm = () => {
+
+
+// O componente pode receber a prop goToRegister, como no código 1
+const LoginForm = ({ goToRegister }) => {
+    // --- HOOKS E STORES ---
+    const navigate = useNavigate();
+    const { setAuthData, fcmToken } = useAuthStore();
+    const { setMe } = useUserStore();
+
     // --- ESTADOS ---
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [passwordStrength, setPasswordStrength] = useState('Fraca');
-
-    // ESTADOS para controle da API e feedback visual
     const [isLoading, setIsLoading] = useState(false);
     const [apiError, setApiError] = useState('');
 
-    // --- HOOKS E STORES ---
-    const navigate = useNavigate();
-    const { setAuthData } = useAuthStore(); // Usando o stub/mock
-
-    // --- FUNÇÕES DE VALIDAÇÃO (Mantidas) ---
+    // --- FUNÇÕES DE VALIDAÇÃO ---
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!email) {
@@ -69,10 +72,10 @@ const LoginForm = () => {
         return true;
     };
 
-    // --- FUNÇÃO DE SUBMISSÃO CORRIGIDA COM TRY/CATCH E LOADING ---
+    // --- FUNÇÃO DE SUBMISSÃO UNIFICADA ---
     const submitForm = async (e) => {
         e.preventDefault();
-        setApiError(''); // Limpa erros de API anteriores
+        setApiError(''); 
 
         // 1. Validação local do formulário
         const isEmailValid = validateEmail(email);
@@ -82,44 +85,62 @@ const LoginForm = () => {
             return;
         }
 
-        setIsLoading(true); // 2. Inicia o carregamento
+        setIsLoading(true); 
 
         try {
-            // 3. Chamada de serviço (onde o Axios é invocado - USANDO MOCK DE SERVIÇO AQUI)
-            const responseData = await LoginService.login({ email, password });
+            const loginCredentials = { email, password };
+            
+            // 2. Chamada de login
+            const responseData = await LoginService.login(loginCredentials);
+            console.log(responseData);
 
-            // 4. Sucesso: processa o token
+            // 3. Processa o token
             const receivedTokenFromBackend = responseData.token;
-            localStorage.setItem("accessToken", receivedTokenFromBackend)
+            localStorage.setItem("accessToken", receivedTokenFromBackend);
 
-            const decodedUser = jwtDecode(receivedTokenFromBackend); // Usando MOCK de jwtDecode
-            setAuthData(receivedTokenFromBackend, decodedUser); // Usando MOCK de setAuthData
+            const decodedUser = jwtDecode(receivedTokenFromBackend);
+            setAuthData(receivedTokenFromBackend, decodedUser);
+            console.log('Dados do usuário decodificados e armazenados:', decodedUser);
 
-            console.log('Login bem-sucedido. Redirecionando para /home.');
-            // navigate("/home"); // Descomente na sua aplicação real
+            // 4. Envia o FCM Token (se disponível)
+            if (fcmToken) {
+                await LoginService.sendToken({ fcmToken });
+            } else {
+                console.log("FCM Token não disponível, pulando o envio.");
+            }
+            
+            // 5. Obtém e armazena os dados "me"
+            const me = await LoginService.me();
+            setMe(me.tipo, me);
+            console.log('Dados do usuário "me" armazenados.');
+
+            // 6. Redirecionamento
+            // navigate("/home"); // Descomente para navegar após o sucesso
 
         } catch (error) {
-            // 5. Captura e exibe o erro
+            // 7. Captura e exibe o erro
             console.error('Erro de login capturado no componente:', error.message);
-            setApiError(error.message);
+            // Uso de optional chaining para acessar a mensagem de erro do backend com segurança
+            const errorMessage = error.response?.data?.message || error.message || 'Erro desconhecido ao fazer login.';
+            setApiError(errorMessage);
         } finally {
-            // 6. Finaliza o carregamento
+            // 8. Finaliza o carregamento
             setIsLoading(false);
         }
     };
 
+    // --- JSX (RETURN) INTEGRADO ---
     return (
         <div className="slideIn bg-gray-10 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-                {/* ... (Logo e Título) ... */}
+                {/* O logo e título estão dentro do form, mas é comum colocá-los acima. 
+                Aqui mantivemos a estrutura do seu primeiro código fornecido. */}
             </div>
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="bg-white py-8 px-4 shadow-xl sm:rounded-lg sm:px-10 border border-gray-100">
-                    {/* O onSubmit no form garante que o botão type="submit" funcione */}
                     <form className="space-y-6" onSubmit={submitForm}>
                         <div>
-                            {/* Substituído import logoEmpresa por placeholder */}
                             <img
                                 className="mx-auto h-50 w-auto"
                                 src={logoEmpresa}
@@ -130,6 +151,7 @@ const LoginForm = () => {
                                 Bem vindo!
                             </h2><br /><br />
 
+                            {/* Campo de Email */}
                             <label htmlFor="email" className="sr-only">
                                 Endereço de Email
                             </label>
@@ -143,14 +165,16 @@ const LoginForm = () => {
                                     setEmail(e.target.value);
                                     validateEmail(e.target.value);
                                 }}
+                                onBlur={() => validateEmail(email)}
                                 className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
-                                placeholder="Endereço de Email (Tente 'fail@test.com' para simular erro)"
+                                placeholder="Endereço de Email"
                                 disabled={isLoading}
                             />
                             {emailError && <p className="mt-2 text-sm text-red-600">{emailError}</p>}
                         </div>
 
                         <div>
+                            {/* Campo de Senha */}
                             <label htmlFor="password" className="sr-only">
                                 Senha
                             </label>
@@ -166,11 +190,12 @@ const LoginForm = () => {
                                         checkPasswordStrength(e.target.value);
                                         validatePassword(e.target.value);
                                     }}
+                                    onBlur={() => validatePassword(password)}
                                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
                                     placeholder="Senha"
                                     disabled={isLoading}
                                 />
-                                {/* ... (Seu ícone SVG) ... */}
+                                {/* Adicione seu ícone SVG de visibilidade de senha aqui se necessário */}
                             </div>
                             {passwordError ? (
                                 <p className="mt-2 text-sm text-red-600">{passwordError}</p>
@@ -181,25 +206,27 @@ const LoginForm = () => {
                             )}
                         </div>
 
-                        {/* NOVO: EXIBIÇÃO DE ERRO DA API */}
+                        {/* EXIBIÇÃO DE ERRO DA API */}
                         {apiError && (
                             <div className="p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-md text-sm text-center font-medium">
                                 {apiError}
                             </div>
                         )}
 
+                        {/* Link de Esqueceu a Senha */}
                         <div className="flex items-center justify-end">
                             <div className="text-sm">
-                                <Link to="/forgot-password" className="font-medium text-teal-600 hover:text-teal-500">
+                                <Link to={"/forgot-password"} className="font-medium text-teal-600 hover:text-teal-500">
                                     Esqueceu a senha?
                                 </Link>
                             </div>
                         </div>
 
+                        {/* Botão de Login */}
                         <div>
                             <button
                                 type="submit"
-                                disabled={isLoading} // Impede múltiplos envios
+                                disabled={isLoading}
                                 className={`w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white transition duration-150
                                     ${isLoading ? 'bg-teal-400 cursor-not-allowed' : 'bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500'}`
                                 }
@@ -216,11 +243,13 @@ const LoginForm = () => {
                         </div>
                     </form>
 
+                    {/* Link de Registro */}
                     <div className="mt-6 text-center text-sm">
                         <span className="text-gray-600">
                             Não possui conta?
                         </span>
-                        <Link to="/register" className="font-medium text-teal-600 hover:text-teal-500 ml-1">
+                        {/* Se a prop goToRegister for usada, você pode alternar o link aqui */}
+                        <Link to="/register" onClick={goToRegister} className="font-medium text-teal-600 hover:text-teal-500 ml-1">
                             Registre-se agora
                         </Link>
                     </div>
@@ -230,4 +259,4 @@ const LoginForm = () => {
     );
 };
 
-export default LoginForm
+export default LoginForm;

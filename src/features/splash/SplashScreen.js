@@ -2,6 +2,8 @@
 import React from 'react';
 import LoginForm from './components/LoginForm';
 import Fundologin from './assets/Fundologin.png'
+import ForgotPassword from './components/ForgotPassword';
+import Register from './components/Register';
 
 
 const SplashScreen = () => {
