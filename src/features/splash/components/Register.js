@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logoEmpresa from '../assets/logoEmpresa.png'
+import FormComponent from '../../../shared/components/FormComponent';
+import { MdEmail, MdHome, MdLock, MdPerson, MdTypeSpecimen } from 'react-icons/md';
+
 
 // --- ÍCONES SVG INLINE (Componentes autônomos para evitar dependências externas) ---
 // Estes componentes SVG são usados como ícones em todo o formulário.
@@ -43,7 +46,7 @@ const MessageBox = ({ message, type, onClose }) => {
 };
 
 
-const Register = () => { // Componente principal Register
+const Register = ({goToLogin, goToCompleteRegistration}) => { // Componente principal Register
   // Estado unificado do Formulário (incluindo 'tipo' e campos do seu código original)
   const [form, setForm] = useState({
     name: '',
@@ -69,6 +72,7 @@ const Register = () => { // Componente principal Register
   // Função auxiliar para atualizar o estado do formulário
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    console.log(e.target)
 
     // Atualiza o estado
     setForm(prevForm => ({
@@ -131,11 +135,14 @@ const Register = () => { // Componente principal Register
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    console.log(form)
 
     // Roda todas as validações no submit
     const isEmailValid = validateEmail(form.email);
     const isPasswordValid = validatePassword(form.password);
     const isConfirmPasswordValid = validateConfirmPassword(form.password, form.confirmPassword);
+
+    console.log(isEmailValid, isPasswordValid, isConfirmPasswordValid)
 
     let isAgreedValid = true;
     if (!form.agreed) {
@@ -161,15 +168,9 @@ const Register = () => { // Componente principal Register
         type: 'success'
       });
 
-      // Limpa o formulário após o sucesso
-      setForm({
-        name: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        tipo: 'Admin',
-        agreed: false
-      });
+      goToCompleteRegistration(form)
+
+    
 
     } else {
       setErrors(prev => ({ ...prev, formSubmit: 'Por favor, corrija os erros no formulário antes de prosseguir.' }));
@@ -189,6 +190,7 @@ const Register = () => { // Componente principal Register
           <Icon className="h-5 w-5 text-gray-400" aria-hidden="true" />
         </div>
         <input
+          key={id}
           id={id}
           name={name}
           type={type}
@@ -202,12 +204,26 @@ const Register = () => { // Componente principal Register
                         ${error ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-teal-500 focus:border-teal-500'}
                     `}
           placeholder={placeholder}
+          
         />
       </div>
       {error && <p className="mt-2 text-xs text-red-600 font-medium">{error}</p>}
     </div>
   );
 
+   const myForm = [
+    { fieldName: "name", type: "text",  placeholder: "Insert your name",
+       form, setForm: setForm, icon: <MdPerson className="text-gray-400 mr-2" size={20} /> },
+
+    { fieldName: "email", type: "email",  placeholder: "Insert your email",
+       form, setForm: setForm, icon: <MdEmail className="text-gray-400 mr-2" size={20} />  },
+
+    { fieldName: "password", type: "password",  placeholder: "Insert your password",
+       form, setForm: setForm, icon: <MdLock className="text-gray-400 mr-2" size={20} /> },
+       { fieldName: "confirmPassword", type: "password",  placeholder: "Confirm your password",
+       form, setForm: setForm, icon: <MdLock className="text-gray-400 mr-2" size={20} /> },
+
+  ]
 
   return (
     <div className="slideIn bg-gray-10 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -237,54 +253,9 @@ const Register = () => { // Componente principal Register
 
           <form className="space-y-5 mt-8" onSubmit={handleSubmit}>
 
-            {/* Campo Nome */}
-            <CustomInput
-              id="name"
-              name="name"
-              type="text"
-              placeholder="Nome Completo"
-              value={form.name}
-              onChange={handleChange}
-              error={null}
-              icon={IconUser}
-            />
-
-            {/* Campo E-mail */}
-            <CustomInput
-              id="email"
-              name="email"
-              type="email"
-              placeholder="Endereço de E-mail"
-              value={form.email}
-              onChange={handleChange}
-              error={errors.email}
-              icon={IconMail}
-            />
-
-            {/* Campo Senha */}
-            <CustomInput
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Crie sua senha"
-              value={form.password}
-              onChange={handleChange}
-              error={errors.password}
-              icon={IconLock}
-            />
-
-            {/* Campo Confirmar Senha */}
-            <CustomInput
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              placeholder="Confirmar Senha"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              error={errors.confirmPassword}
-              icon={IconLock}
-            />
-
+           {myForm.map(e => (
+            FormComponent(e)
+          ))}
             {/* Campo de Seleção de Tipo/Role (INTEGRADO DO RegisterForm) */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -360,9 +331,9 @@ const Register = () => { // Componente principal Register
               className="font-medium text-teal-600 hover:text-teal-500 ml-1"
               onClick={() => console.log('Ação: Navegar para a tela de Login')}
             >
-              <Link to="/" className="font-medium text-teal-600 hover:text-teal-500 ml-1">
+              <span onClick={goToLogin} className="font-medium text-teal-600 hover:text-teal-500 ml-1">
                 Entrar
-              </Link>
+              </span>
             </a>
           </div>
         </div>

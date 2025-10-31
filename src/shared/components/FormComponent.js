@@ -5,6 +5,7 @@ const FormComponent = (props) => {
    
         <div className="mb-6">
         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor={props.fieldName}>
+             {props.title || ""}<br /><br />
             <div className="flex items-center border rounded-md py-2 px-3 text-gray-700 leading-tight focus-within:ring-2 focus-within:ring-blue-500">
             {props.icon}
             <input

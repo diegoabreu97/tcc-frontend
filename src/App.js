@@ -50,9 +50,7 @@ const App = () => {
         
         {!user && <PublicRoute>
           <Routes>
-            
             <Route path="/forgot-password" element={<SplashScreenForgotPassword />} />
-            <Route path="/register" element={<SplashScreenRegister />} />
             <Route path="*" element={<SplashScreen />} />
           </Routes>
         </PublicRoute>}
@@ -64,29 +62,6 @@ const App = () => {
           </Routes>
         </PrivateRoute>}
       </Router>
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-        <h2 className="text-xl font-semibold mb-3 text-gray-800">Status do Token FCM:</h2>
-        {token ? (
-          <>
-            <p className="text-green-600 font-medium break-words">
-              Token Obtido com Sucesso!
-            </p>
-            <textarea
-              readOnly
-              value={token}
-              rows="4"
-              className="mt-2 w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-sm"
-            />
-            <p className="mt-2 text-sm text-gray-500">
-              Envie este token para seu servidor para testes de notificação direcionada.
-            </p>
-          </>
-        ) : (
-          <p className="text-red-600 font-medium">
-            Aguardando permissão ou token... (Verifique o console para erros)
-          </p>
-        )}
-      </div>
       <Toaster />
     </div>
   );

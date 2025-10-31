@@ -6,12 +6,13 @@ import { toast } from 'react-hot-toast';
 
 // Sua configuração do Firebase
 const firebaseConfig = {
-    apiKey: process.env.REACT_APP_API_KEY,
-    authDomain: "estoque-tcc.firebaseapp.com",
-    projectId: "estoque-tcc",
-    storageBucket: "estoque-tcc.firebasestorage.app",
-    messagingSenderId: "710664269621",
-    appId: "1:710664269621:web:075a7fd3a59223650be67c"
+apiKey: process.env.REACT_APP_API_KEY,
+  authDomain: "masi-mapeamentosaudeindaiatuba.firebaseapp.com",
+  projectId: "masi-mapeamentosaudeindaiatuba",
+  storageBucket: "masi-mapeamentosaudeindaiatuba.firebasestorage.app",
+  messagingSenderId: "286598576727",
+  appId: "1:286598576727:web:40a0110a93e2e6b8d54112",
+  measurementId: "G-3G1H22GCRJ"
 };
 
 // **IMPORTANTE:** O VAPID Key é necessário para o FCM na Web.

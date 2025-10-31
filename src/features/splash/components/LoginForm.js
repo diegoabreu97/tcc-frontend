@@ -249,9 +249,9 @@ const LoginForm = ({ goToRegister }) => {
                             Não possui conta?
                         </span>
                         {/* Se a prop goToRegister for usada, você pode alternar o link aqui */}
-                        <Link to="/register" onClick={goToRegister} className="font-medium text-teal-600 hover:text-teal-500 ml-1">
+                        <span to="/register" onClick={goToRegister} className="font-medium text-teal-600 hover:text-teal-500 ml-1">
                             Registre-se agora
-                        </Link>
+                        </span>
                     </div>
                 </div>
             </div>
