@@ -1,6 +1,6 @@
 // src/LoginForm.js
 import React from 'react';
-import { MdEmail, MdHome, MdLock, MdPerson, MdTypeSpecimen } from 'react-icons/md';
+import { MdEmail, MdHome, MdLock, MdPerson, MdPlace, MdTypeSpecimen } from 'react-icons/md';
 import './LoginForm.css'
 import LoginService from '../services/LoginService';
 import { useAuth } from '../../../shared/context/AuthContext';
@@ -29,72 +29,50 @@ const RegisterComplete = ({ goBackToRegister, form, setForm }) => {
 
   const submitForm = async (e) => {
     e.preventDefault();
-/*
+
     // Isso eu pego do backend
     const responseData = await LoginService.register(form)
-    const receivedTokenFromBackend = responseData.token;
-    localStorage.setItem("accessToken", receivedTokenFromBackend)
-
-    const decodedUser = jwtDecode(receivedTokenFromBackend);
-    // Armazena o token e as informações decodificadas no Zustand
-    setAuthData(receivedTokenFromBackend, decodedUser);
-    console.log('Dados do usuário decodificados e armazenados:', decodedUser);
-
-    const me = await LoginService.me();
-    setMe(me.tipo, me)
-    */
+    
 
 
   }
 
   const adminForm = [
-    { fieldName: "cnpj", type: "text",  placeholder: "Insert your cnpj",
-       errorMessages,
-       form, setForm: setForm, icon: <MdPerson className="text-gray-400 mr-2" size={20} /> },
+  
 
-    { fieldName: "nomeDaEmpresa", type: "text",  placeholder: "Insert your Company Name",
-       errorMessages,
-       form, setForm: setForm, icon: <MdEmail className="text-gray-400 mr-2" size={20} /> },
-
-    { fieldName: "ramoAtuacao", type: "text",  placeholder: "Insert your business area",
-       errorMessages,
-       form, setForm: setForm, icon: <MdLock className="text-gray-400 mr-2" size={20} /> },
 
   ]
 
-   const guestForm = [
-    { fieldName: "cpfOrCnpj", type: "text",  placeholder: "Insert your cpfOrCnpj",
+   const userForm = [
+    { fieldName: "cpf", type: "text",  placeholder: "Insira seu CPF",
        errorMessages,
        form, setForm: setForm, icon: <MdPerson className="text-gray-400 mr-2" size={20} /> },
 
-    { fieldName: "city", type: "text",  placeholder: "Insert your City",
+    { fieldName: "cidade", type: "text",  placeholder: "Insert sua cidade",
        errorMessages,
        form, setForm: setForm, icon: <MdHome className="text-gray-400 mr-2" size={20} /> },
 
-    { fieldName: "zipCode", type: "text",  placeholder: "Insert your zip code",
+    { fieldName: "cep", type: "text",  placeholder: "Insira seu CEP",
        errorMessages,
        form, setForm: setForm, icon: <MdHome className="text-gray-400 mr-2" size={20} /> },
 
 
-       { fieldName: "number", type: "number",  placeholder: "Insert your address number",
+       { fieldName: "numero", type: "number",  placeholder: "Insira o numero da sua residencia",
+       errorMessages,
+       form, setForm: setForm, icon: <MdHome className="text-gray-400 mr-2" size={20} /> },
+
+       { fieldName: "extra", type: "text",  placeholder: "Insira o Complemento",
        errorMessages,
        form, setForm: setForm, icon: <MdHome className="text-gray-400 mr-2" size={20} /> },
 
   ]
 
 
-  const standardForm = [
-    { fieldName: "cnpj", type: "text",  placeholder: "Insert your cnpj",
+  const ubsAdminForm = [
+    { fieldName: "codigoUbs", type: "text",  placeholder: "Insira o codigo da Ubs",
        errorMessages,
-       form, setForm: setForm, icon: <MdPerson className="text-gray-400 mr-2" size={20} /> },
-
-    { fieldName: "nomeDaEmpresa", type: "text",  placeholder: "Insert your Company Name",
-       errorMessages,
-       form, setForm: setForm, icon: <MdEmail className="text-gray-400 mr-2" size={20} /> },
-
-    { fieldName: "ramoAtuacao", type: "text",  placeholder: "Insert your business area",
-       errorMessages,
-       form, setForm: setForm, icon: <MdLock className="text-gray-400 mr-2" size={20} /> },
+       form, setForm: setForm, icon: <MdPlace className="text-gray-400 mr-2" size={20} /> },
+      
 
   ]
 
@@ -102,18 +80,16 @@ const RegisterComplete = ({ goBackToRegister, form, setForm }) => {
   return (
     <div className="flex slideIn items-center justify-center  bg-gray-100">
       <div className="bg-white  p-8 rounded-lg shadow-xl w-full max-w-sm animate-slideIn">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">ESTOQUE - FRONT</h1>
+        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800"></h1>
 
 
         <form>
 
-          {form.tipo == "Admin" && adminForm.map(e => (
+    
+          {form.tipo == "UbsAdmin" && ubsAdminForm.map(e => (
             FormComponent(e)
           ))}
-          {form.tipo == "Standard" && standardForm.map(e => (
-            FormComponent(e)
-          ))}
-          {form.tipo == "Guest" && guestForm.map(e => (
+          {form.tipo == "User" && userForm.map(e => (
             FormComponent(e)
           ))}
 
@@ -136,7 +112,7 @@ const RegisterComplete = ({ goBackToRegister, form, setForm }) => {
               href="#"
             >
               VOLTAR PARA REGISTER
-            </a>
+            </a> 
           </div>
         </form>
       </div>

@@ -13,7 +13,13 @@ const LoginService = {
   async register(registerData) {
     try {
       // Usa a instância 'api' para fazer a chamada. A baseURL já está configurada.
-      const response = await api.post('/v1/api/auth/register', registerData);
+      //const response = await api.post('/v1/api/auth/register', registerData);
+      let response;
+      if(registerData.tipo == "UBS_ADMIN"){
+        response = await api.post('/v1/api/users/ubsadmin', registerData);
+      } else {
+        response = await api.post('/v1/api/users/paciente', registerData);
+      }
       return response.data;
     } catch (error) {
       console.error('Erro no registro:', error.response || error);

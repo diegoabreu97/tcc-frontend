@@ -53,7 +53,7 @@ const Register = ({goToLogin, goToCompleteRegistration}) => { // Componente prin
     email: '',
     password: '',
     confirmPassword: '',
-    tipo: 'Admin', // INTEGRADO do RegisterForm
+    tipo: 'User', // INTEGRADO do RegisterForm
     agreed: false
   });
 
@@ -272,9 +272,9 @@ const Register = ({goToLogin, goToCompleteRegistration}) => { // Componente prin
                   onChange={handleChange}
                   className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm appearance-none transition duration-150"
                 >
-                  <option value="Admin">Admin</option>
-                  <option value="Standard">Standard</option>
-                  <option value="Guest">Guest</option>
+                  <option value="User">Usuário Comum</option>
+                  <option value="UbsAdmin">Admin da Ubs</option>
+                  
                 </select>
               </div>
               <p className="mt-1 text-xs text-gray-500">
