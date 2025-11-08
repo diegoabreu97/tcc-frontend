@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
+import useUserStore from '../store/user-store';
+import MedicamentosConsultation from './Medicamentos';
+
 
 // Componente da tela de consulta de vacinas
 const VaccineConsultation = () => {
-  const allVaccines = [
+  
+   const allVaccines = [
     { name: 'BCG', description: 'Protege contra formas graves de tuberculose. É uma vacina essencial do calendário infantil.', ageGroup: 'Recém-nascidos', doseInterval: 'Dose única', doses: 1, quantity: 1 },
     { name: 'Hepatite B', description: 'Previne contra a infecção pelo vírus da Hepatite B, que pode causar doença hepática grave.', ageGroup: 'Recém-nascidos, adolescentes e adultos', doseInterval: '0, 1 e 6 meses', doses: 3, quantity: 1 },
     { name: 'Tríplice Viral', description: 'Protege contra sarampo, caxumba e rubéola. Duas doses são recomendadas para garantir a imunidade.', ageGroup: 'Crianças a partir de 12 meses', doseInterval: '12 meses e 15 meses', doses: 2, quantity: 1 },
@@ -89,6 +93,17 @@ const VaccineConsultation = () => {
   );
 };
 
+const currentView = () => {
+  switch (currentView) {
+    case 'vacinas':
+      return <VaccineConsultation />;
+    case 'medicamentos': // <--- NOVA OPÇÃO ADICIONADA
+      return <MedicamentosConsultation />; 
+    case 'ubs':
+    default: // O 'default' irá renderizar UBSConsultation caso currentView seja algo diferente ou não definido
+      return <UBSConsultation />;
+  }};
+  
 // Componente da tela de consulta de UBS (Unidade Básica de Saúde)
 const UBSConsultation = () => {
     return (
@@ -106,9 +121,8 @@ const UBSConsultation = () => {
     );
 };
 
-
 // Componente da tela inicial
-const HomeScreen = ({ userName = 'Lucas', userProfilePic, vaccineBanner, yogaCard, exerciseReminder, meditationReminder, skinCareReminder, onVaccinesClick, onUBSClick, onToggleSidebar, onMedicamentosClick }) => {
+const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exerciseReminder, meditationReminder, skinCareReminder, onVaccinesClick, onUBSClick, onToggleSidebar, onMedicamentosClick }) => {
   return (
     <div className="bg-gray-100 min-h-screen font-sans">
       {/* Header */}
@@ -122,7 +136,8 @@ const HomeScreen = ({ userName = 'Lucas', userProfilePic, vaccineBanner, yogaCar
           <span className="text-gray-500 text-sm">Olá,</span>
           <p className="font-semibold text-lg text-gray-800">{userName}</p>
         </div>
-        <div className="flex items-center space-x-2">
+        
+        {/* <div className="flex items-center space-x-2">
           <button className="text-gray-600">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -133,7 +148,7 @@ const HomeScreen = ({ userName = 'Lucas', userProfilePic, vaccineBanner, yogaCar
             src={userProfilePic || 'https://via.placeholder.com/150'}
             alt="User Profile"
           />
-        </div>
+        </div> */}
       </header>
 
       {/* Main Content */}
@@ -243,7 +258,8 @@ const HomeScreen = ({ userName = 'Lucas', userProfilePic, vaccineBanner, yogaCar
 };
 
 // Componente principal que gerencia o estado e a navegação
-const App = () => {
+const HomeApp = () => {
+  const {info} = useUserStore()
   const [currentView, setCurrentView] = useState('home');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -286,18 +302,14 @@ const App = () => {
             </svg>
             Início
           </button>
-          <button
-            onClick={() => handleSidebarItemClick('vacinas')}
-            className="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+          <button onClick={() => handleSidebarItemClick('vacinas')}className="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2-14h-4a2 2 0 00-2 2v14a2 2 0 002 2h4a2 2 0 002-2V4a2 2 0 00-2-2z" />
             </svg>
             Vacinas
           </button>
-          <button
-            onClick={() => handleSidebarItemClick('ubs')}
-            className="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+          <button onClick={() => handleSidebarItemClick('ubs')}className="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" />
@@ -305,9 +317,7 @@ const App = () => {
             UBS
           </button>
            <button
-            onClick={() => handleSidebarItemClick('medicamentos')}
-            className="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
-          >
+            onClick={() => handleSidebarItemClick('medicamentos')}className="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" />
             </svg>
@@ -330,6 +340,7 @@ const App = () => {
           <HomeScreen
             onVaccinesClick={() => setCurrentView('vacinas')}
             onUBSClick={() => setCurrentView('ubs')}
+            onMedicamentosClick={() => setCurrentView('medicamentos')}
             onToggleSidebar={toggleSidebar}
           />
         ) : (
@@ -342,7 +353,7 @@ const App = () => {
                 </button>
                 <div className="text-center flex-1">
                   <span className="text-gray-500 text-sm">Olá,</span>
-                  <p className="font-semibold text-lg text-gray-800">Lucas</p>
+                  <p className="font-semibold text-lg text-gray-800">{info.nome}</p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button className="text-gray-600">
@@ -359,9 +370,11 @@ const App = () => {
             </header>
             {currentView === 'vacinas' ? (
                 <VaccineConsultation />
-            ) : (
-                <UBSConsultation />
-            )}
+              ) : currentView === 'medicamentos' ? ( // <--- Adicionando o segundo ternário para medicamentos
+                <MedicamentosConsultation />
+              ) : (
+                <UBSConsultation /> // <--- Opção padrão (fallback)
+              )}
           </div>
         )}
       </div>
@@ -369,4 +382,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default HomeApp;
