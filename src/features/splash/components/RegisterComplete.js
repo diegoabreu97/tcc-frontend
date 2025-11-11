@@ -9,6 +9,7 @@ import useAuthStore from '../../../shared/store/auth-store';
 import { jwtDecode } from 'jwt-decode';
 import useUserStore from '../../../shared/store/user-store';
 import FormComponent from '../../../shared/components/FormComponent';
+import logoEmpresa from '../assets/logoEmpresa.png'
 
 
 
@@ -23,8 +24,8 @@ const RegisterComplete = ({ goBackToRegister, form, setForm }) => {
 
   const [errorMessages, setErrorMessages] = React.useState({})
 
-  
-  
+
+
 
 
   const submitForm = async (e) => {
@@ -32,47 +33,59 @@ const RegisterComplete = ({ goBackToRegister, form, setForm }) => {
 
     // Isso eu pego do backend
     const responseData = await LoginService.register(form)
-    
+
 
 
   }
 
   const adminForm = [
-  
+
 
 
   ]
 
-   const userForm = [
-    { fieldName: "cpf", type: "text",  placeholder: "Insira seu CPF",
-       errorMessages,
-       form, setForm: setForm, icon: <MdPerson className="text-gray-400 mr-2" size={20} /> },
+  const userForm = [
+    {
+      fieldName: "cpf", type: "text", placeholder: "Insira seu CPF",
+      errorMessages,
+      form, setForm: setForm, icon: <MdPerson className="text-gray-400 mr-2" size={20} />
+    },
 
-    { fieldName: "cidade", type: "text",  placeholder: "Insert sua cidade",
-       errorMessages,
-       form, setForm: setForm, icon: <MdHome className="text-gray-400 mr-2" size={20} /> },
+    {
+      fieldName: "cidade", type: "text", placeholder: "Cidade",
+      errorMessages,
+      form, setForm: setForm, icon: <MdHome className="text-gray-400 mr-2" size={20} />
+    },
 
-    { fieldName: "cep", type: "text",  placeholder: "Insira seu CEP",
-       errorMessages,
-       form, setForm: setForm, icon: <MdHome className="text-gray-400 mr-2" size={20} /> },
+    {
+      fieldName: "cep", type: "text", placeholder: "Insira seu CEP",
+      errorMessages,
+      form, setForm: setForm, icon: <MdHome className="text-gray-400 mr-2" size={20} />
+    },
 
 
-       { fieldName: "numero", type: "number",  placeholder: "Insira o numero da sua residencia",
-       errorMessages,
-       form, setForm: setForm, icon: <MdHome className="text-gray-400 mr-2" size={20} /> },
+    {
+      fieldName: "numero", type: "number", placeholder: "N° da residência",
+      errorMessages,
+      form, setForm: setForm, icon: <MdHome className="text-gray-400 mr-2" size={20} />
+    },
 
-       { fieldName: "extra", type: "text",  placeholder: "Insira o Complemento",
-       errorMessages,
-       form, setForm: setForm, icon: <MdHome className="text-gray-400 mr-2" size={20} /> },
+    {
+      fieldName: "extra", type: "text", placeholder: "Insira o Complemento",
+      errorMessages,
+      form, setForm: setForm, icon: <MdHome className="text-gray-400 mr-2" size={20} />
+    },
 
   ]
 
 
   const ubsAdminForm = [
-    { fieldName: "codigoUbs", type: "text",  placeholder: "Insira o codigo da Ubs",
-       errorMessages,
-       form, setForm: setForm, icon: <MdPlace className="text-gray-400 mr-2" size={20} /> },
-      
+    {
+      fieldName: "codigoUbs", type: "text", placeholder: "Insira o codigo da Ubs",
+      errorMessages,
+      form, setForm: setForm, icon: <MdPlace className="text-gray-400 mr-2" size={20} />
+    },
+
 
   ]
 
@@ -81,11 +94,15 @@ const RegisterComplete = ({ goBackToRegister, form, setForm }) => {
     <div className="flex slideIn items-center justify-center  bg-gray-100">
       <div className="bg-white  p-8 rounded-lg shadow-xl w-full max-w-sm animate-slideIn">
         <h1 className="text-2xl font-bold text-center mb-6 text-gray-800"></h1>
-
+        <img
+          className="mx-auto h-50 w-auto"
+          src={logoEmpresa}
+          alt="MASI Logo Placeholder"
+        />
 
         <form>
 
-    
+
           {form.tipo == "UbsAdmin" && ubsAdminForm.map(e => (
             FormComponent(e)
           ))}
@@ -98,10 +115,10 @@ const RegisterComplete = ({ goBackToRegister, form, setForm }) => {
           {/* Botão de Registro */}
           <div className="flex items-center justify-center mb-4">
             <button onClick={submitForm}
-              className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline transition-colors duration-200"
+              className="w-full bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline transition-colors duration-200"
               type="button"
             >
-              REGISTER
+              Registre-se
             </button>
           </div>
 
@@ -111,8 +128,8 @@ const RegisterComplete = ({ goBackToRegister, form, setForm }) => {
               className="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline transition-colors duration-200"
               href="#"
             >
-              VOLTAR PARA REGISTER
-            </a> 
+              Retornar à página anterior
+            </a>
           </div>
         </form>
       </div>

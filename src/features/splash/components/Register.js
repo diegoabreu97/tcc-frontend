@@ -212,15 +212,15 @@ const Register = ({goToLogin, goToCompleteRegistration}) => { // Componente prin
   );
 
    const myForm = [
-    { fieldName: "name", type: "text",  placeholder: "Insert your name",
+    { fieldName: "name", type: "text",  placeholder: "Insira seu nome",
        form, setForm: setForm, icon: <MdPerson className="text-gray-400 mr-2" size={20} /> },
 
-    { fieldName: "email", type: "email",  placeholder: "Insert your email",
+    { fieldName: "email", type: "email",  placeholder: "Endereço de email",
        form, setForm: setForm, icon: <MdEmail className="text-gray-400 mr-2" size={20} />  },
 
-    { fieldName: "password", type: "password",  placeholder: "Insert your password",
+    { fieldName: "password", type: "password",  placeholder: "Crie uma senha",
        form, setForm: setForm, icon: <MdLock className="text-gray-400 mr-2" size={20} /> },
-       { fieldName: "confirmPassword", type: "password",  placeholder: "Confirm your password",
+       { fieldName: "confirmPassword", type: "password",  placeholder: "Confirmar senha",
        form, setForm: setForm, icon: <MdLock className="text-gray-400 mr-2" size={20} /> },
 
   ]
