@@ -28,7 +28,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-gray-800 p-4 shadow-lg">
+    <nav className="bg-white-800 p-4 shadow-lg">
       <div className="container mx-auto flex justify-between items-center">
         {/* Seção Esquerda - Links de Navegação */}
         <div className="flex space-x-4">
@@ -46,18 +46,10 @@ const Navbar = () => {
         {/* Seção Direita - Perfil do Usuário */}
         <div className="flex items-center space-x-4">
           {user ? (
-            <div className="text-white flex items-center space-x-2">
-              <span className="bg-gray-700 text-sm font-semibold rounded-full p-2">
-                Olá, {user.name}!
-              </span>
-              <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="focus:outline-none">
-                <img
-                    src={user.picture || 'https://via.placeholder.com/32'} // Exemplo de avatar
-                    alt="Profile"
-                    className="w-8 h-8 rounded-full border-2 border-white"
-                />
-              </button>
-            </div>
+            <div className="text-center flex-1">
+          <span className="text-gray-500 text-sm">Olá,</span>
+          <p className="font-semibold text-lg text-gray-800">{user.name}</p>
+        </div>
           ) : (
             <Link to="/login" className="text-white hover:text-gray-400 transition duration-300">
               Login

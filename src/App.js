@@ -1,8 +1,8 @@
 import React from 'react';
 import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import HomeScreen from './features/home/HomeScreen';
-import VaccineConsultation from './Vacinas';
-import Medicamentos from './Medicamentos';
+import VaccineConsultation from './shared/components/Vacinas';
+import Medicamentos from './shared/components/Medicamentos';
 import SplashScreen from './features/splash/SplashScreen';
 import SplashScreenForgotPassword from './features/splash/SplashScrenForgotPassword';
 import SplashScreenRegister from './features/splash/SplashScrenRegister';
@@ -12,6 +12,9 @@ import PublicRoute from './shared/components/PublicRoute';
 import { Toaster } from 'react-hot-toast'; // Importe o componente Toaster
 import { requestForToken, onMessageListener } from './firebase';
 import useAuthStore from './shared/store/auth-store';
+import InicialPage from './shared/components/InicialPage'
+import Navbar from './shared/components/Navbar';
+import HomeApp from './shared/components/InicialPage';
 
 
 const App = () => {
@@ -55,7 +58,9 @@ const App = () => {
           </Routes>
         </PublicRoute>}
         {user && <PrivateRoute>
+          <HomeApp />
           <Routes>
+            <Route path="/home" element={<InicialPage />} />
             <Route path="/vacinas" element={<VaccineConsultation />} />
             <Route path="/medicamentos" element={<Medicamentos />} />
             <Route path="*" element={<HomeScreen />} />

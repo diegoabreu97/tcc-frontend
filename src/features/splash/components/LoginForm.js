@@ -111,11 +111,13 @@ const LoginForm = ({ goToRegister }) => {
             
             // 5. Obtém e armazena os dados "me"
             const me = await LoginService.me();
+            console.log(me)
             setMe(me.tipo, me);
+
             console.log('Dados do usuário "me" armazenados.');
 
             // 6. Redirecionamento
-            // navigate("/home"); // Descomente para navegar após o sucesso
+            navigate("/home"); // Descomente para navegar após o sucesso
 
         } catch (error) {
             // 7. Captura e exibe o erro
