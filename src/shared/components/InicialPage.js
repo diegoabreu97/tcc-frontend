@@ -1,30 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import useUserStore from '../store/user-store';
 import MedicamentosConsultation from './Medicamentos';
+import VacinaService from '../../features/splash/services/VacinaService';
 
 
 // Componente da tela de consulta de vacinas
 const VaccineConsultation = () => {
   
-   const allVaccines = [
-    { name: 'BCG', description: 'Protege contra formas graves de tuberculose. É uma vacina essencial do calendário infantil.', ageGroup: 'Recém-nascidos', doseInterval: 'Dose única', doses: 1, quantity: 1 },
-    { name: 'Hepatite B', description: 'Previne contra a infecção pelo vírus da Hepatite B, que pode causar doença hepática grave.', ageGroup: 'Recém-nascidos, adolescentes e adultos', doseInterval: '0, 1 e 6 meses', doses: 3, quantity: 1 },
-    { name: 'Tríplice Viral', description: 'Protege contra sarampo, caxumba e rubéola. Duas doses são recomendadas para garantir a imunidade.', ageGroup: 'Crianças a partir de 12 meses', doseInterval: '12 meses e 15 meses', doses: 2, quantity: 1 },
-    { name: 'Febre Amarela', description: 'Protege contra a febre amarela, uma doença viral transmitida por mosquitos. A vacina é essencial para áreas de risco.', ageGroup: 'Crianças a partir de 9 meses, adultos', doseInterval: 'Dose única', doses: 1, quantity: 1 },
-    { name: 'Influenza (Gripe)', description: 'Protege contra os vírus da gripe mais comuns. A vacina deve ser tomada anualmente.', ageGroup: 'Crianças a partir de 6 meses e adultos', doseInterval: 'Anual', doses: 1, quantity: 1 },
-    { name: 'Pneumocócica 13', description: 'Protege contra doenças graves causadas pela bactéria Streptococcus pneumoniae, como pneumonia e meningite.', ageGroup: 'Crianças e idosos', doseInterval: 'Variável', doses: 4, quantity: 1 },
-  ];
+   const [allVaccines, setallVaccines] = useState([])
+   const [filteredVaccines, setFilteredVaccines] = useState([])
+  useEffect(() => {
+  VacinaService.vacinas().then(setallVaccines).catch(console.log)
+
+  }, [])
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedVaccine, setSelectedVaccine] = useState(null);
   
-  const filteredVaccines = allVaccines.filter(vaccine =>
-    vaccine.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
   
   const handleSearch = (vaccineName) => {
-    const vaccine = allVaccines.find(v => v.name.toLowerCase() === vaccineName.toLowerCase());
+   
+    const vaccine = allVaccines.find(v => v.nomeVacina.toLowerCase() === vaccineName.toLowerCase());
     setSelectedVaccine(vaccine);
-    setSearchTerm(vaccineName);
+    setSearchTerm(null);
   };
   
   return (
@@ -41,18 +38,21 @@ const VaccineConsultation = () => {
             onChange={(e) => {
               setSearchTerm(e.target.value);
               setSelectedVaccine(null);
+               setFilteredVaccines(allVaccines.filter(vaccine =>
+                    vaccine.nomeVacina.toLowerCase().includes(e.target.value.toLowerCase())))
             }}
             className="w-full px-4 py-3 transition-all duration-300 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+         
           {searchTerm && filteredVaccines.length > 0 && (
             <div className="absolute top-full left-0 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
               {filteredVaccines.map((vaccine) => (
-                <div
-                  key={vaccine.name}
-                  onClick={() => handleSearch(vaccine.name)}
-                  className="px-4 py-3 transition-colors duration-200 cursor-pointer hover:bg-blue-50 hover:text-blue-700"
+                <div 
+                  key={vaccine.nomeVacina}
+                  onClick={() => handleSearch(vaccine.nomeVacina)}
+                  className="px-4 py-4 transition-colors duration-200 cursor-pointer hover:bg-blue-50 hover:text-blue-700"
                 >
-                  {vaccine.name}
+                  {vaccine.nomeVacina}
                 </div>
               ))}
             </div>
@@ -61,7 +61,7 @@ const VaccineConsultation = () => {
         {selectedVaccine ? (
           <div className="p-6 space-y-4 transition-all duration-500 bg-blue-50 border border-blue-200 rounded-lg">
             <h3 className="text-2xl font-semibold text-blue-800">
-              {selectedVaccine.name}
+              {selectedVaccine.nomeVacina}
             </h3>
             <p className="text-gray-700">{selectedVaccine.description}</p>
             <ul className="list-none p-0 space-y-2 text-gray-600">

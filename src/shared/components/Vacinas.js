@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import VacinaService from '../../features/splash/services/VacinaService';
 
 // Exemplo de dados de vacinas (você vai substituir por seus dados reais)
-const allVaccines = [
-  { name: 'BCG', description: 'Protege contra formas graves de tuberculose.', ageGroup: 'Recém-nascidos', doseInterval: 'Dose única', doses: 1, quantity: 1 },
-  { name: 'Hepatite B', description: 'Previne contra a infecção pelo vírus da Hepatite B.', ageGroup: 'Recém-nascidos, adolescentes e adultos', doseInterval: '0, 1 e 6 meses', doses: 3, quantity: 1 },
-  { name: 'Tríplice Viral', description: 'Protege contra sarampo, caxumba e rubéola.', ageGroup: 'Crianças a partir de 12 meses', doseInterval: '12 meses e 15 meses', doses: 2, quantity: 1 },
-  { name: 'Febre Amarela', description: 'Protege contra a febre amarela.', ageGroup: 'Crianças a partir de 9 meses, adultos', doseInterval: 'Dose única', doses: 1, quantity: 1 },
-];
+
 
 const VaccineConsultation = () => {
+  const [allVaccines, setallVaccines] = useState([])
+  useEffect(() => {
+  VacinaService.vacinas().then(setallVaccines).catch(console.log)
+
+}, [])
+
   // Estado para armazenar o valor do input de busca
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -17,11 +19,11 @@ const VaccineConsultation = () => {
 
   // Filtra as vacinas com base no termo de busca (para a navbar dropdown)
   const filteredVaccines = allVaccines.filter(vaccine =>
-    vaccine.name.toLowerCase().includes(searchTerm.toLowerCase())
+    vaccine.nomeVacina.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSearch = (vaccineName) => {
-    const vaccine = allVaccines.find(v => v.name.toLowerCase() === vaccineName.toLowerCase());
+    const vaccine = allVaccines.find(v => v.nomeVacina.toLowerCase() === vaccineName.toLowerCase());
     setSelectedVaccine(vaccine);
     setSearchTerm(vaccineName); // Atualiza o input com o nome da vacina selecionada
   };
@@ -63,7 +65,7 @@ const VaccineConsultation = () => {
         {/* Exibição das informações da vacina */}
         {selectedVaccine ? (
           <div className="space-y-4">
-            <h3 className="text-2xl font-semibold text-gray-700">{selectedVaccine.name}</h3>
+            <h3 className="text-2xl font-semibold text-gray-700">{selectedVaccine.nomeVacina}</h3>
             
             <p className="text-gray-600">{selectedVaccine.description}</p>
             
