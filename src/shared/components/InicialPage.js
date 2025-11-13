@@ -18,7 +18,7 @@ const VaccineConsultation = () => {
   
   
   const handleSearch = (vaccineName) => {
-   
+    
     const vaccine = allVaccines.find(v => v.nomeVacina.toLowerCase() === vaccineName.toLowerCase());
     setSelectedVaccine(vaccine);
     setSearchTerm(null);
