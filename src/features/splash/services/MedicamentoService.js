@@ -9,7 +9,7 @@ const MedicamentoService = {
    * @param {object} loginData - As credenciais de login do usuário (email, password).
    * @returns {Promise<object>} - Uma Promise que resolve para os dados do usuário logado.
    */
-  async vacinas() {
+  async medicamentos() {
     try {
       // Usa a instância 'api' para fazer a chamada. A baseURL já está configurada.
       const response = await api.get('/v1/api/medicamento');
