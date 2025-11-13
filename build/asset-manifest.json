@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/static/css/main.003f788f.css",
+    "main.js": "/static/js/main.516b4612.js",
+    "static/media/Fundologin.png": "/static/media/Fundologin.d14dd3449a6657bca8c5.png",
+    "static/media/logoEmpresa.png": "/static/media/logoEmpresa.bd745b84502e49fa9170.png",
+    "index.html": "/index.html",
+    "main.003f788f.css.map": "/static/css/main.003f788f.css.map",
+    "main.516b4612.js.map": "/static/js/main.516b4612.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.003f788f.css",
+    "static/js/main.516b4612.js"
+  ]
+}
