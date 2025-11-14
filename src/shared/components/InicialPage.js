@@ -158,7 +158,7 @@ const VaccineConsultation = () => {
                 <span>{selectedVaccine.faixaEtaria}</span>
               </li>
               <li className="flex items-center">
-                <span className="font-semibold text-gray-800 w-32">INtervalo de doses:</span>
+                <span className="font-semibold text-gray-800 w-32">Intervalo de doses:</span>
                 <span>{selectedVaccine.intervaloEntreDoses}</span>
               </li>
               <li className="flex items-center">
