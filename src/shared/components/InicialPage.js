@@ -1,9 +1,98 @@
 import React, { useState, useEffect } from 'react';
+import { APIProvider, Map, Marker, Pin } from '@vis.gl/react-google-maps';
 import useUserStore from '../store/user-store';
-import MedicamentosConsultation from './Medicamentos';
+import MedicamentoService from '../../features/splash/services/MedicamentoService';
 import VacinaService from '../../features/splash/services/VacinaService';
 
+const MedicamentosConsultation = () => { 
 
+   const [allMedicamentos, setallMedicamentos] = useState([])
+   const [filteredMedicamentos, setFilteredMedicamentos] = useState([])
+  useEffect(() => {
+  MedicamentoService.medicamentos().then(setallMedicamentos).catch(console.log)
+
+  }, [])
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedMedicamentos, setSelectedMedicamentos ] = useState(null)
+  
+  
+
+  const handleSearch = (medicamentoName) => {
+    console.log(medicamentoName)
+    const medicamentos = allMedicamentos.find(v => v.nome.toLowerCase() === medicamentoName.toLowerCase());
+    setSelectedMedicamentos(medicamentos);
+    setSearchTerm(null);
+  };
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-2xl w-full">
+        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Consulta de Medicamentos</h2>
+        
+        {/* Campo de busca com a navbar dropdown */}
+        <div className="relative mb-6">
+          <input
+            type="text"
+            placeholder="Digite o nome do medicamento..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setSelectedMedicamentos(null); 
+                setFilteredMedicamentos(allMedicamentos.filter(medicamentos =>
+                    medicamentos.nome?.toLowerCase().includes(e.target.value.toLowerCase())))// Limpa a vacina selecionada ao digitar
+            }}
+            className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+          />
+          
+          {/* Navbar dropdown que só aparece se houver um termo de busca e resultados */}
+          {searchTerm && filteredMedicamentos.length > 0 && (
+            <div className="absolute top-full left-0 w-full mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+              {filteredMedicamentos.map((medicamentos) => (
+                <div
+                  key={medicamentos.nome}
+                  onClick={() => handleSearch(medicamentos.nome.toLowerCase())}
+                  className="px-4 py-3 cursor-pointer hover:bg-gray-100 transition-colors"
+                >
+                  {medicamentos.nome.toLowerCase()}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        {selectedMedicamentos ? (
+          <div className="p-6 space-y-4 transition-all duration-500 bg-blue-50 border border-blue-200 rounded-lg">
+            <h3 className="text-2xl font-semibold text-blue-800">
+              {selectedMedicamentos.nomeVacina}
+            </h3>
+            <p className="text-gray-700">{selectedMedicamentos.nome}</p>
+            <ul className="list-none p-0 space-y-2 text-gray-600">
+              <li className="flex items-center">
+                <span className="font-semibold text-gray-800 w-32">Faixa Etária:</span>
+                <span>{selectedMedicamentos.ageGroup}</span>
+              </li>
+              <li className="flex items-center">
+                <span className="font-semibold text-gray-800 w-32">Intervalo:</span>
+                <span>{selectedMedicamentos.doseInterval}</span>
+              </li>
+              <li className="flex items-center">
+                <span className="font-semibold text-gray-800 w-32">Nº de Doses:</span>
+                <span>{selectedMedicamentos.doses}</span>
+              </li>
+              <li className="flex items-center">
+                <span className="font-semibold text-gray-800 w-32">Quantidade:</span>
+                <span>{selectedMedicamentos.quantity}</span>
+              </li>
+            </ul>
+          </div>
+        ) : (
+          <div className="p-6 text-center text-gray-500 bg-gray-50 border border-gray-200 rounded-lg">
+            {searchTerm ? "Nenhum medicamento encontrado. Tente um nome diferente." : "Pesquise por um medicamento para ver os detalhes."}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 // Componente da tela de consulta de vacinas
 const VaccineConsultation = () => {
   
@@ -18,7 +107,6 @@ const VaccineConsultation = () => {
   
   
   const handleSearch = (vaccineName) => {
-    
     const vaccine = allVaccines.find(v => v.nomeVacina.toLowerCase() === vaccineName.toLowerCase());
     setSelectedVaccine(vaccine);
     setSearchTerm(null);
@@ -103,6 +191,39 @@ const currentView = () => {
     default: // O 'default' irá renderizar UBSConsultation caso currentView seja algo diferente ou não definido
       return <UBSConsultation />;
   }};
+
+
+const locations = [
+  { lat: 34.052235, lng: -118.243683, name: 'Location A' },
+  { lat: 34.052235, lng: -118.253683, name: 'Location B' },
+  { lat: 34.062235, lng: -118.243683, name: 'Location C' },
+];
+
+
+
+
+function MyMapComponent() {
+  const mapId = "YOUR_MAP_ID"; // Obtain from Google Maps console if using advanced markers
+
+  return (
+    <div style={{ height: '500px', width: '100%' }}>
+      <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
+        <Map
+          center={{ lat: 34.052235, lng: -118.243683 }} // Initial map center
+          zoom={12}
+          mapId={mapId} // Required for advanced markers
+        >
+          {locations.map((location, index) => (
+            <Marker key={index} position={{ lat: location.lat, lng: location.lng }}>
+              <Pin background={'#FBBC04'} glyphColor={'#000'} borderColor={'#000'} />
+              {/* Optional: Add custom content to the marker, e.g., location.name */}
+            </Marker>
+          ))}
+        </Map>
+      </APIProvider>
+    </div>
+  );
+}
   
 // Componente da tela de consulta de UBS (Unidade Básica de Saúde)
 const UBSConsultation = () => {
@@ -115,8 +236,9 @@ const UBSConsultation = () => {
                 <p className="text-gray-600">
                     Em breve, você poderá consultar as Unidades Básicas de Saúde (UBS) próximas a você.
                 </p>
-                <img src="https://placehold.co/400x300/e5e7eb/4b5563?text=Em+Desenvolvimento" alt="Placeholder para a tela de UBS" className="mt-8 rounded-lg w-full" />
+                <MyMapComponent />
             </div>
+            
         </div>
     );
 };
@@ -137,7 +259,7 @@ const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exercis
           <p className="font-semibold text-lg text-gray-800">{userName}</p>
         </div>
         
-        {/* <div className="flex items-center space-x-2">
+        {/* <div className="flex items-center space-x-2"> 
           <button className="text-gray-600">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -381,5 +503,7 @@ const HomeApp = () => {
     </div>
   );
 };
+
+
 
 export default HomeApp;

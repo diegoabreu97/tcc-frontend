@@ -58,7 +58,6 @@ const App = () => {
           </Routes>
         </PublicRoute>}
         {user && <PrivateRoute>
-          <HomeApp />
           <Routes>
             <Route path="/home" element={<InicialPage />} />
             <Route path="/vacinas" element={<VaccineConsultation />} />
