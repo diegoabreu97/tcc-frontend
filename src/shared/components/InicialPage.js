@@ -67,20 +67,12 @@ const MedicamentosConsultation = () => {
             <p className="text-gray-700">{selectedMedicamentos.nome}</p>
             <ul className="list-none p-0 space-y-2 text-gray-600">
               <li className="flex items-center">
-                <span className="font-semibold text-gray-800 w-32">Faixa Etária:</span>
-                <span>{selectedMedicamentos.ageGroup}</span>
+                <span className="font-semibold text-gray-800 w-32">Principio ativo:</span>
+                <span>{selectedMedicamentos.principio_ativo}</span>
               </li>
               <li className="flex items-center">
-                <span className="font-semibold text-gray-800 w-32">Intervalo:</span>
-                <span>{selectedMedicamentos.doseInterval}</span>
-              </li>
-              <li className="flex items-center">
-                <span className="font-semibold text-gray-800 w-32">Nº de Doses:</span>
-                <span>{selectedMedicamentos.doses}</span>
-              </li>
-              <li className="flex items-center">
-                <span className="font-semibold text-gray-800 w-32">Quantidade:</span>
-                <span>{selectedMedicamentos.quantity}</span>
+                <span className="font-semibold text-gray-800 w-32">Tipo:</span>
+                <span>{selectedMedicamentos.tipo}</span>
               </li>
             </ul>
           </div>
@@ -151,23 +143,27 @@ const VaccineConsultation = () => {
             <h3 className="text-2xl font-semibold text-blue-800">
               {selectedVaccine.nomeVacina}
             </h3>
-            <p className="text-gray-700">{selectedVaccine.description}</p>
+            <p className="text-gray-700">{selectedVaccine.nomeVacina}</p>
             <ul className="list-none p-0 space-y-2 text-gray-600">
               <li className="flex items-center">
-                <span className="font-semibold text-gray-800 w-32">Faixa Etária:</span>
-                <span>{selectedVaccine.ageGroup}</span>
+                <span className="font-semibold text-gray-800 w-32">Descrição:</span>
+                <span>{selectedVaccine.descVacina}</span>
               </li>
               <li className="flex items-center">
-                <span className="font-semibold text-gray-800 w-32">Intervalo:</span>
-                <span>{selectedVaccine.doseInterval}</span>
+                <span className="font-semibold text-gray-800 w-32">Tratamento:</span>
+                <span>{selectedVaccine.tratamento}</span>
               </li>
               <li className="flex items-center">
-                <span className="font-semibold text-gray-800 w-32">Nº de Doses:</span>
-                <span>{selectedVaccine.doses}</span>
+                <span className="font-semibold text-gray-800 w-32">Faixa etaria:</span>
+                <span>{selectedVaccine.faixaEtaria}</span>
               </li>
               <li className="flex items-center">
-                <span className="font-semibold text-gray-800 w-32">Quantidade:</span>
-                <span>{selectedVaccine.quantity}</span>
+                <span className="font-semibold text-gray-800 w-32">INtervalo de doses:</span>
+                <span>{selectedVaccine.intervaloEntreDoses}</span>
+              </li>
+              <li className="flex items-center">
+                <span className="font-semibold text-gray-800 w-32">N° de doses:</span>
+                <span>{selectedVaccine.numeroDoses}</span>
               </li>
             </ul>
           </div>
