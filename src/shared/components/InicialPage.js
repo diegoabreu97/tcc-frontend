@@ -16,6 +16,7 @@ const MedicamentosConsultation = () => {
   const [filteredMedicamentos, setFilteredMedicamentos] = useState([])
   useEffect(() => {
     MedicamentoService.medicamentos().then(setallMedicamentos).catch(console.log)
+  
 
   }, [])
   const [searchTerm, setSearchTerm] = useState('');
