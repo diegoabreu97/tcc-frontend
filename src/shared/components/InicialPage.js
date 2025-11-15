@@ -3,19 +3,24 @@ import { APIProvider, Map, Marker, Pin } from '@vis.gl/react-google-maps';
 import useUserStore from '../store/user-store';
 import MedicamentoService from '../../features/splash/services/MedicamentoService';
 import VacinaService from '../../features/splash/services/VacinaService';
+import FundoLogin from '../../../src/features/splash/assets/Fundologin.png'
 
-const MedicamentosConsultation = () => { 
+const PRIMARY_COLOR_CLASSES = 'bg-teal-500 hover:bg-teal-600 focus:ring-teal-500'; // teal-500 é um bom match
+const TEXT_COLOR_CLASSES = 'text-balck';
+const FOCUS_BORDER_CLASSES = 'focus:ring-teal-500';
 
-   const [allMedicamentos, setallMedicamentos] = useState([])
-   const [filteredMedicamentos, setFilteredMedicamentos] = useState([])
+const MedicamentosConsultation = () => {
+
+  const [allMedicamentos, setallMedicamentos] = useState([])
+  const [filteredMedicamentos, setFilteredMedicamentos] = useState([])
   useEffect(() => {
-  MedicamentoService.medicamentos().then(setallMedicamentos).catch(console.log)
+    MedicamentoService.medicamentos().then(setallMedicamentos).catch(console.log)
 
   }, [])
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedMedicamentos, setSelectedMedicamentos ] = useState(null)
-  
-  
+  const [selectedMedicamentos, setSelectedMedicamentos] = useState(null)
+
+
 
   const handleSearch = (medicamentoName) => {
     console.log(medicamentoName)
@@ -25,10 +30,15 @@ const MedicamentosConsultation = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-2xl w-full">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Consulta de Medicamentos</h2>
-        
+      <div
+      className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
+      style={{ backgroundImage: `url(${FundoLogin})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}
+    >
+      <div className="absolute inset-0 bg-white opacity-80 z-1"></div>
+      <div className="w-full max-w-2xl p-8 bg-white rounded-xl shadow-2xl z-50"> {/* Card mais elegante */}
+        <h2 className={`text-3xl font-extrabold ${TEXT_COLOR_CLASSES} mb-8 text-center`}>
+          💊 Consulta de Medicamentos
+        </h2>
         {/* Campo de busca com a navbar dropdown */}
         <div className="relative mb-6">
           <input
@@ -37,48 +47,57 @@ const MedicamentosConsultation = () => {
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
-              setSelectedMedicamentos(null); 
-                setFilteredMedicamentos(allMedicamentos.filter(medicamentos =>
-                    medicamentos.nome?.toLowerCase().includes(e.target.value.toLowerCase())))// Limpa a vacina selecionada ao digitar
+              setSelectedMedicamentos(null);
+              setFilteredMedicamentos(allMedicamentos.filter(medicamentos =>
+                medicamentos.nome?.toLowerCase().includes(e.target.value.toLowerCase())))// Limpa a vacina selecionada ao digitar
             }}
-            className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+            className={`w-full px-5 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 ${FOCUS_BORDER_CLASSES} transition-all text-lg`}
           />
-          
+
           {/* Navbar dropdown que só aparece se houver um termo de busca e resultados */}
           {searchTerm && filteredMedicamentos.length > 0 && (
-            <div className="absolute top-full left-0 w-full mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+            <div className="absolute top-full left-0 w-full mt-2 bg-white border border-gray-100 rounded-lg shadow-xl z-10 max-h-60 overflow-y-auto"> {/* Sombra mais leve */}
               {filteredMedicamentos.map((medicamentos) => (
                 <div
                   key={medicamentos.nome}
-                  onClick={() => handleSearch(medicamentos.nome.toLowerCase())}
-                  className="px-4 py-3 cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => handleSearch(medicamentos.nome)} // Passando o nome original
+                  className="px-5 py-3 cursor-pointer hover:bg-teal-50 transition-colors border-b border-gray-100 last:border-b-0 text-gray-800" // Cor de hover sutil
                 >
-                  {medicamentos.nome.toLowerCase()}
+                  {medicamentos.nome}
                 </div>
               ))}
             </div>
           )}
         </div>
+
+        {/* Exibição do Medicamento Selecionado */}
         {selectedMedicamentos ? (
-          <div className="p-6 space-y-4 transition-all duration-500 bg-blue-50 border border-blue-200 rounded-lg">
-            <h3 className="text-2xl font-semibold text-blue-800">
-              {selectedMedicamentos.nomeVacina}
+          <div className="p-6 space-y-4 transition-all duration-500 bg-teal-50 border-l-4 border-teal-500 rounded-lg shadow-md"> {/* Usando a cor de destaque no fundo e na borda esquerda */}
+            <h3 className={`text-2xl font-bold ${TEXT_COLOR_CLASSES}`}>
+              {selectedMedicamentos.nome} {/* Usando o nome do medicamento como título */}
             </h3>
-            <p className="text-gray-700">{selectedMedicamentos.nome}</p>
-            <ul className="list-none p-0 space-y-2 text-gray-600">
-              <li className="flex items-center">
-                <span className="font-semibold text-gray-800 w-32">Principio ativo:</span>
-                <span>{selectedMedicamentos.principio_ativo}</span>
+
+            <ul className="list-none p-0 space-y-3 text-gray-700">
+              <li className="flex justify-between items-start border-b border-teal-100 pb-2">
+                <span className="font-semibold text-gray-800 w-32 flex-shrink-0">Princípio Ativo:</span>
+                <span className="text-right flex-grow ml-4">{selectedMedicamentos.principio_ativo}</span>
               </li>
-              <li className="flex items-center">
-                <span className="font-semibold text-gray-800 w-32">Tipo:</span>
-                <span>{selectedMedicamentos.tipo}</span>
+              <li className="flex justify-between items-start">
+                <span className="font-semibold text-gray-800 w-32 flex-shrink-0">Tipo:</span>
+                <span className="text-right flex-grow ml-4">{selectedMedicamentos.tipo}</span>
               </li>
             </ul>
           </div>
         ) : (
-          <div className="p-6 text-center text-gray-500 bg-gray-50 border border-gray-200 rounded-lg">
-            {searchTerm ? "Nenhum medicamento encontrado. Tente um nome diferente." : "Pesquise por um medicamento para ver os detalhes."}
+          <div className="p-6 text-center text-gray-600 bg-gray-100 border border-gray-300 rounded-lg shadow-inner">
+            <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-8 mx-auto mb-2 ${TEXT_COLOR_CLASSES}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
+            {searchTerm && filteredMedicamentos.length === 0 ? (
+              "Nenhum medicamento encontrado. Tente um nome diferente."
+            ) : (
+              "Pesquise por um medicamento para ver os detalhes."
+            )}
           </div>
         )}
       </div>
@@ -87,29 +106,36 @@ const MedicamentosConsultation = () => {
 };
 // Componente da tela de consulta de vacinas
 const VaccineConsultation = () => {
-  
-   const [allVaccines, setallVaccines] = useState([])
-   const [filteredVaccines, setFilteredVaccines] = useState([])
+
+  const [allVaccines, setallVaccines] = useState([])
+  const [filteredVaccines, setFilteredVaccines] = useState([])
   useEffect(() => {
-  VacinaService.vacinas().then(setallVaccines).catch(console.log)
+    VacinaService.vacinas().then(setallVaccines).catch(console.log)
 
   }, [])
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedVaccine, setSelectedVaccine] = useState(null);
-  
-  
+
+
   const handleSearch = (vaccineName) => {
     const vaccine = allVaccines.find(v => v.nomeVacina.toLowerCase() === vaccineName.toLowerCase());
     setSelectedVaccine(vaccine);
     setSearchTerm(null);
   };
-  
-  return (
-    <div className="flex items-center justify-center w-full min-h-screen p-4 bg-gray-100 font-sans">
-      <div className="w-full max-w-2xl p-8 bg-white rounded-xl shadow-lg">
-        <h2 className="mb-6 text-3xl font-bold text-center text-gray-800">
-          Consulta de Vacinas
+
+return (
+       <div
+      className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
+      style={{ backgroundImage: `url(${FundoLogin})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}
+    >
+      <div className="absolute inset-0 bg-white opacity-80 z-1"></div>
+      <div className="w-full max-w-2xl p-8 bg-white rounded-xl shadow-2xl z-50"> {/* Card mais elegante */}
+        
+        <h2 className={`mb-8 text-3xl font-extrabold text-center ${TEXT_COLOR_CLASSES}`}>
+          💉 Consulta de Vacinas
         </h2>
+        
+        {/* Campo de busca com a navbar dropdown */}
         <div className="relative mb-6">
           <input
             type="text"
@@ -118,19 +144,20 @@ const VaccineConsultation = () => {
             onChange={(e) => {
               setSearchTerm(e.target.value);
               setSelectedVaccine(null);
-               setFilteredVaccines(allVaccines.filter(vaccine =>
-                    vaccine.nomeVacina.toLowerCase().includes(e.target.value.toLowerCase())))
+              setFilteredVaccines(allVaccines.filter(vaccine =>
+                vaccine.nomeVacina.toLowerCase().includes(e.target.value.toLowerCase())))
             }}
-            className="w-full px-4 py-3 transition-all duration-300 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full px-5 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 ${FOCUS_BORDER_CLASSES} transition-all text-lg`}
           />
-         
+
+          {/* Dropdown de resultados */}
           {searchTerm && filteredVaccines.length > 0 && (
-            <div className="absolute top-full left-0 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+            <div className="absolute top-full left-0 w-full mt-2 bg-white border border-gray-100 rounded-lg shadow-xl z-10 max-h-60 overflow-y-auto">
               {filteredVaccines.map((vaccine) => (
-                <div 
+                <div
                   key={vaccine.nomeVacina}
                   onClick={() => handleSearch(vaccine.nomeVacina)}
-                  className="px-4 py-4 transition-colors duration-200 cursor-pointer hover:bg-blue-50 hover:text-blue-700"
+                  className="px-5 py-3 cursor-pointer hover:bg-teal-50 transition-colors border-b border-gray-100 last:border-b-0 text-gray-800"
                 >
                   {vaccine.nomeVacina}
                 </div>
@@ -138,38 +165,47 @@ const VaccineConsultation = () => {
             </div>
           )}
         </div>
+        
+        {/* Detalhes da Vacina Selecionada */}
         {selectedVaccine ? (
-          <div className="p-6 space-y-4 transition-all duration-500 bg-blue-50 border border-blue-200 rounded-lg">
-            <h3 className="text-2xl font-semibold text-blue-800">
+          <div className="p-6 space-y-4 transition-all duration-500 bg-teal-50 border-l-4 border-teal-500 rounded-lg shadow-md">
+            
+            <h3 className={`text-2xl font-bold ${TEXT_COLOR_CLASSES} border-b border-teal-200 pb-2`}>
               {selectedVaccine.nomeVacina}
             </h3>
-            <p className="text-gray-700">{selectedVaccine.nomeVacina}</p>
-            <ul className="list-none p-0 space-y-2 text-gray-600">
-              <li className="flex items-center">
-                <span className="font-semibold text-gray-800 w-32">Descrição:</span>
-                <span>{selectedVaccine.descVacina}</span>
+            
+            <ul className="list-none p-0 space-y-3 text-gray-700">
+              {/* Descrição em um parágrafo separado */}
+              <li className="text-gray-600 text-sm italic">
+                 {selectedVaccine.descVacina}
               </li>
-              <li className="flex items-center">
-                <span className="font-semibold text-gray-800 w-32">Tratamento:</span>
-                <span>{selectedVaccine.tratamento}</span>
+
+              {/* Itens detalhados estilizados como tabela limpa */}
+              <li className="flex justify-between items-start pt-2 border-t border-teal-100">
+                <span className="font-semibold text-gray-800 w-40 flex-shrink-0">Tratamento:</span>
+                <span className="text-right flex-grow ml-4">{selectedVaccine.tratamento}</span>
               </li>
-              <li className="flex items-center">
-                <span className="font-semibold text-gray-800 w-32">Faixa etaria:</span>
-                <span>{selectedVaccine.faixaEtaria}</span>
+              <li className="flex justify-between items-start">
+                <span className="font-semibold text-gray-800 w-40 flex-shrink-0">Faixa Etária:</span>
+                <span className="text-right flex-grow ml-4">{selectedVaccine.faixaEtaria}</span>
               </li>
-              <li className="flex items-center">
-                <span className="font-semibold text-gray-800 w-32">Intervalo de doses:</span>
-                <span>{selectedVaccine.intervaloEntreDoses}</span>
+              <li className="flex justify-between items-start">
+                <span className="font-semibold text-gray-800 w-40 flex-shrink-0">N° de Doses:</span>
+                <span className="text-right flex-grow ml-4">{selectedVaccine.numeroDoses}</span>
               </li>
-              <li className="flex items-center">
-                <span className="font-semibold text-gray-800 w-32">N° de doses:</span>
-                <span>{selectedVaccine.numeroDoses}</span>
+              <li className="flex justify-between items-start">
+                <span className="font-semibold text-gray-800 w-40 flex-shrink-0">Intervalo de Doses:</span>
+                <span className="text-right flex-grow ml-4">{selectedVaccine.intervaloEntreDoses}</span>
               </li>
             </ul>
           </div>
         ) : (
-          <div className="p-6 text-center text-gray-500 bg-gray-50 border border-gray-200 rounded-lg">
-            {searchTerm ? "Nenhuma vacina encontrada. Tente um nome diferente." : "Pesquise por uma vacina para ver os detalhes."}
+          /* Mensagem de Estado */
+          <div className="p-6 text-center text-gray-600 bg-gray-100 border border-gray-300 rounded-lg shadow-inner">
+            <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-8 mx-auto mb-2 ${TEXT_COLOR_CLASSES}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944c6.287 0 11.44 4.095 12 9.056-1.42 6.008-6.195 10.902-12 11.056C5.44 24.04 0.287 19.945 0 14.944A12.003 12.003 0 0112 1.944v0z" />
+            </svg>
+            {searchTerm && filteredVaccines.length === 0 ? "Nenhuma vacina encontrada. Tente um nome diferente." : "Pesquise por uma vacina para ver os detalhes."}
           </div>
         )}
       </div>
@@ -182,11 +218,12 @@ const currentView = () => {
     case 'vacinas':
       return <VaccineConsultation />;
     case 'medicamentos': // <--- NOVA OPÇÃO ADICIONADA
-      return <MedicamentosConsultation />; 
+      return <MedicamentosConsultation />;
     case 'ubs':
     default: // O 'default' irá renderizar UBSConsultation caso currentView seja algo diferente ou não definido
       return <UBSConsultation />;
-  }};
+  }
+};
 
 
 const locations = [
@@ -220,23 +257,23 @@ function MyMapComponent() {
     </div>
   );
 }
-  
+
 // Componente da tela de consulta de UBS (Unidade Básica de Saúde)
 const UBSConsultation = () => {
-    return (
-        <div className="flex items-center justify-center w-full min-h-screen p-4 bg-gray-100 font-sans">
-            <div className="w-full max-w-2xl p-8 bg-white rounded-xl shadow-lg text-center">
-                <h2 className="mb-6 text-3xl font-bold text-gray-800">
-                    Consulta de UBS
-                </h2>
-                <p className="text-gray-600">
-                    Em breve, você poderá consultar as Unidades Básicas de Saúde (UBS) próximas a você.
-                </p>
-                <MyMapComponent />
-            </div>
-            
-        </div>
-    );
+  return (
+    <div className="flex items-center justify-center w-full min-h-screen p-4 bg-gray-100 font-sans">
+      <div className="w-full max-w-2xl p-8 bg-white rounded-xl shadow-lg text-center">
+        <h2 className="mb-6 text-3xl font-bold text-gray-800">
+          Consulta de UBS
+        </h2>
+        <p className="text-gray-600">
+          Em breve, você poderá consultar as Unidades Básicas de Saúde (UBS) próximas a você.
+        </p>
+        <MyMapComponent />
+      </div>
+
+    </div>
+  );
 };
 
 // Componente da tela inicial
@@ -254,7 +291,7 @@ const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exercis
           <span className="text-gray-500 text-sm">Olá,</span>
           <p className="font-semibold text-lg text-gray-800">{userName}</p>
         </div>
-        
+
         {/* <div className="flex items-center space-x-2"> 
           <button className="text-gray-600">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -288,9 +325,9 @@ const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exercis
             </button>
             <button
               onClick={onMedicamentosClick}
-              className="bg-white text-gray-600 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap" 
-              >
-                Medicamentos
+              className="bg-white text-gray-600 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap"
+            >
+              Medicamentos
             </button>
           </div>
           <div className="relative mb-4">
@@ -377,7 +414,7 @@ const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exercis
 
 // Componente principal que gerencia o estado e a navegação
 const HomeApp = () => {
-  const {info} = useUserStore()
+  const { info } = useUserStore()
   const [currentView, setCurrentView] = useState('home');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -389,7 +426,7 @@ const HomeApp = () => {
     setCurrentView(view);
     setIsSidebarOpen(false); // Fecha a sidebar após a seleção
   };
-  
+
   const handleBackToHome = () => {
     setCurrentView('home');
   };
@@ -397,7 +434,7 @@ const HomeApp = () => {
   return (
     <div className="relative overflow-hidden">
       {/* Sidebar - desliza da esquerda */}
-      <div 
+      <div
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <div className="p-4 border-b">
@@ -416,28 +453,28 @@ const HomeApp = () => {
             className="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
             </svg>
             Início
           </button>
-          <button onClick={() => handleSidebarItemClick('vacinas')}className="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+          <button onClick={() => handleSidebarItemClick('vacinas')} className="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2-14h-4a2 2 0 00-2 2v14a2 2 0 002 2h4a2 2 0 002-2V4a2 2 0 00-2-2z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2-14h-4a2 2 0 00-2 2v14a2 2 0 002 2h4a2 2 0 002-2V4a2 2 0 00-2-2z" />
             </svg>
             Vacinas
           </button>
-          <button onClick={() => handleSidebarItemClick('ubs')}className="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+          <button onClick={() => handleSidebarItemClick('ubs')} className="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" />
             </svg>
             UBS
           </button>
-           <button
-            onClick={() => handleSidebarItemClick('medicamentos')}className="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+          <button
+            onClick={() => handleSidebarItemClick('medicamentos')} className="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" />
             </svg>
             Medicamentos
           </button>
@@ -464,35 +501,35 @@ const HomeApp = () => {
         ) : (
           <div>
             <header className="flex items-center p-4 bg-white shadow-sm">
-                <button onClick={handleBackToHome} className="text-gray-600 mr-4">
+              <button onClick={handleBackToHome} className="text-gray-600 mr-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <div className="text-center flex-1">
+                <span className="text-gray-500 text-sm">Olá,</span>
+                <p className="font-semibold text-lg text-gray-800">{info.nome}</p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button className="text-gray-600">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </button>
-                <div className="text-center flex-1">
-                  <span className="text-gray-500 text-sm">Olá,</span>
-                  <p className="font-semibold text-lg text-gray-800">{info.nome}</p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <button className="text-gray-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </button>
-                  <img
-                    className="h-8 w-8 rounded-full"
-                    src={'https://via.placeholder.com/150'}
-                    alt="User Profile"
-                  />
-                </div>
+                <img
+                  className="h-8 w-8 rounded-full"
+                  src={'https://via.placeholder.com/150'}
+                  alt="User Profile"
+                />
+              </div>
             </header>
             {currentView === 'vacinas' ? (
-                <VaccineConsultation />
-              ) : currentView === 'medicamentos' ? ( // <--- Adicionando o segundo ternário para medicamentos
-                <MedicamentosConsultation />
-              ) : (
-                <UBSConsultation /> // <--- Opção padrão (fallback)
-              )}
+              <VaccineConsultation />
+            ) : currentView === 'medicamentos' ? ( // <--- Adicionando o segundo ternário para medicamentos
+              <MedicamentosConsultation />
+            ) : (
+              <UBSConsultation /> // <--- Opção padrão (fallback)
+            )}
           </div>
         )}
       </div>
