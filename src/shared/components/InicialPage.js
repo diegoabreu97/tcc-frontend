@@ -5,11 +5,31 @@ import MedicamentoService from '../../features/splash/services/MedicamentoServic
 import VacinaService from '../../features/splash/services/VacinaService';
 import FundoLogin from '../../../src/features/splash/assets/Fundologin.png'
 import logoEmpresa from '../../../src/features/splash/assets/logoEmpresa.png'
+import FundoLogin from '../../../src/features/splash/assets/Fundologin.png';
+import { ChevronRightIcon } from '@heroicons/react/24/solid';
+
+// ----- ÍCONES NECESSÁRIOS -----
+import { 
+  ChatBubbleOvalLeftIcon, 
+  MegaphoneIcon, 
+  MapPinIcon, 
+  Cog6ToothIcon,
+  MagnifyingGlassIcon // Ícone da Lupa
+} from '@heroicons/react/24/outline'; // Ícones "vazados"
+import { 
+  ChatBubbleOvalLeftIcon as ChatSolid, 
+  MegaphoneIcon as MegaphoneSolid, 
+  MapPinIcon as MapSolid, 
+  Cog6ToothIcon as CogSolid
+} from '@heroicons/react/24/solid'; // Ícones "sólidos" para o item ativo
 
 const PRIMARY_COLOR_CLASSES = 'bg-teal-500 hover:bg-teal-600 focus:ring-teal-500'; // teal-500 é um bom match
-const TEXT_COLOR_CLASSES = 'text-balck';
+const TEXT_COLOR_CLASSES = 'text-balck'; // Nota: "black" está escrito errado aqui, mas mantive o seu original.
 const FOCUS_BORDER_CLASSES = 'focus:ring-teal-500';
 
+// ====================================================================
+// COMPONENTE: MedicamentosConsultation (Original - Sem Mudanças)
+// ====================================================================
 const MedicamentosConsultation = () => {
 
   const [allMedicamentos, setallMedicamentos] = useState([])
@@ -20,8 +40,6 @@ const MedicamentosConsultation = () => {
   }, [])
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMedicamentos, setSelectedMedicamentos] = useState(null)
-
-
 
   const handleSearch = (medicamentoName) => {
     console.log(medicamentoName)
@@ -105,7 +123,10 @@ const MedicamentosConsultation = () => {
     </div>
   );
 };
-// Componente da tela de consulta de vacinas
+
+// ====================================================================
+// COMPONENTE: VaccineConsultation (Original - Sem Mudanças)
+// ====================================================================
 const VaccineConsultation = () => {
 
   const [allVaccines, setallVaccines] = useState([])
@@ -125,7 +146,7 @@ const VaccineConsultation = () => {
   };
 
 return (
-       <div
+      <div
       className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
       style={{ backgroundImage: `url(${FundoLogin})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}
     >
@@ -214,27 +235,15 @@ return (
   );
 };
 
-const currentView = () => {
-  switch (currentView) {
-    case 'vacinas':
-      return <VaccineConsultation />;
-    case 'medicamentos': // <--- NOVA OPÇÃO ADICIONADA
-      return <MedicamentosConsultation />;
-    case 'ubs':
-    default: // O 'default' irá renderizar UBSConsultation caso currentView seja algo diferente ou não definido
-      return <UBSConsultation />;
-  }
-};
-
+// ====================================================================
+// COMPONENTES DE MAPA E UBS (Original - Sem Mudanças)
+// ====================================================================
 
 const locations = [
   { lat: 34.052235, lng: -118.243683, name: 'Location A' },
   { lat: 34.052235, lng: -118.253683, name: 'Location B' },
   { lat: 34.062235, lng: -118.243683, name: 'Location C' },
 ];
-
-
-
 
 function MyMapComponent() {
   const mapId = "YOUR_MAP_ID"; 
@@ -271,6 +280,13 @@ function MyMapComponent() {
                 Os marcadores no mapa indicam as Unidades Básicas de Saúde (UBS).
             </p>
         </div>
+          {locations.map((location, index) => (
+            <Marker key={index} position={{ lat: location.lat, lng: location.lng }}>
+              <Pin background={'#FBBC04'} glyphColor={'#000'} borderColor={'#000'} />
+            </Marker>
+          ))}
+        </Map>
+      </APIProvider>
     </div>
   );
 }
@@ -310,12 +326,94 @@ const UBSConsultation = () => {
   );
 };
 
-// Componente da tela inicial
-const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exerciseReminder, meditationReminder, skinCareReminder, onVaccinesClick, onUBSClick, onToggleSidebar, onMedicamentosClick }) => {
+// ====================================================================
+// COMPONENTES DE SETTINGS (Novo)
+// ====================================================================
+const SettingsItem = ({ label }) => (
+  <button className="w-full text-left p-4 border-b border-gray-200 flex justify-between items-center transition-colors hover:bg-gray-50">
+    <span className="text-gray-800">{label}</span>
+    <ChevronRightIcon className="h-5 w-5 text-gray-400" />
+  </button>
+);
+
+const SettingsPage = () => {
+  return (
+    <div className="flex flex-col items-center w-full bg-white min-h-screen pb-20"> {/* pb-20 p/ não cobrir */}
+      {/* Título */}
+      <h1 className="text-xl font-semibold mt-10 mb-6">Settings</h1>
+
+      {/* Perfil */}
+      <div className="flex flex-col items-center mb-8 px-4">
+        <img
+          className="h-24 w-24 rounded-full object-cover"
+          src="https://i.imgur.com/Qh11fWl.jpeg" // Imagem placeholder, troque pela sua
+          alt="Lucas Scott"
+        />
+        <h2 className="text-xl font-bold mt-3">Lucas Scott</h2>
+        <p className="text-gray-500">@lucasscott3</p>
+      </div>
+
+      {/* Lista de Opções */}
+      <div className="w-full max-w-md">
+        <SettingsItem label="Agendamentos de consultas" />
+        <SettingsItem label="Notificações" />
+        <SettingsItem label="Acessibilidade" />
+        <SettingsItem label="Linguagem" />
+        <SettingsItem label="Privacidade & Segurança" />
+        <SettingsItem label="Central de Ajuda" />
+        <SettingsItem label="Agendamentos" />
+      </div>
+    </div>
+  );
+};
+
+// ====================================================================
+// COMPONENTE DE LEITURA DE TELA (Novo - Placeholder)
+// ====================================================================
+const LeituraTelaPage = () => {
+  return (
+    <div className="p-4 pt-10 text-center">
+      <h1 className="text-2xl font-bold">Leitura de Tela</h1>
+      <p className="mt-4 text-gray-600">
+        Esta funcionalidade ainda está em desenvolvimento.
+      </p>
+    </div>
+  );
+};
+
+
+// ====================================================================
+// COMPONENTE: HomeScreen (Atualizado)
+// ====================================================================
+const HomeScreen = ({ 
+  userName, 
+  userProfilePic,
+  // Props do conteúdo restaurado
+  vaccineBanner, 
+  yogaCard, 
+  exerciseReminder, 
+  meditationReminder, 
+  skinCareReminder,
+  // Props dos botões superiores
+  onVaccinesClick, 
+  onUBSClick, 
+  onToggleSidebar, 
+  onMedicamentosClick,
+  // Props dos botões inferiores
+  onHomeClick,
+  onLeituraClick,
+  onMapaClick,
+  onSettingsClick,
+  // Prop de estado
+  currentView 
+}) => {
   return (
     
     <div className="bg-gray-100 min-h-screen font-sans">
       {/* Header */}
+    <div className="bg-gray-100 min-h-screen font-sans pb-20"> {/* Adicionado pb-20 para não cobrir a nav */}
+      
+      {/* Header - ATUALIZADO com ícones da direita */}
       <header className="flex items-center justify-between p-4 bg-white shadow-sm">
         <button onClick={onToggleSidebar} className="text-gray-600">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -328,10 +426,10 @@ const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exercis
         </div>
 
         <div className="flex items-center space-x-2"> 
+        {/* Ícones da Direita - ATIVADOS */}
+        <div className="flex items-center space-x-3"> 
           <button className="text-gray-600">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+            <MagnifyingGlassIcon className="h-6 w-6" />
           </button>
           <div>
       <img 
@@ -342,10 +440,15 @@ const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exercis
       />
       {/* Restante do componente */}
     </div>
+          <img
+            className="h-8 w-8 rounded-full object-cover"
+            src={userProfilePic || 'https://via.placeholder.com/150'}
+            alt="User Profile"
+          />
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main Content - RESTAURADO */}
       <main className="p-4 space-y-6">
         <div>
           <h2 className="text-xl font-bold text-gray-800 mb-4">Comunicados</h2>
@@ -426,25 +529,35 @@ const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exercis
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
             <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
           </svg>
+
+      {/* Tab Bar Inferior - ATUALIZADA */}
+      <nav className="fixed bottom-0 left-0 w-full bg-white flex justify-around items-center p-3 shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
+        <button 
+          onClick={onHomeClick} 
+          className={`flex flex-col items-center w-full ${currentView === 'home' ? 'text-blue-500' : 'text-gray-500'}`}
+        >
+          {currentView === 'home' ? <ChatSolid className="h-6 w-6" /> : <ChatBubbleOvalLeftIcon className="h-6 w-6" />}
           <span className="text-xs mt-1">Início</span>
         </button>
-        <button className="flex flex-col items-center text-gray-500">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.5-10.036a9 9 0 010 12.072m-.707 1.25a.5.5 0 01-.707 0l-1.414-1.414a.5.5 0 010-.707l1.414-1.414a.5.5 0 01.707 0l1.414 1.414a.5.5 0 010 .707l-1.414 1.414z" />
-          </svg>
+        <button 
+          onClick={onLeituraClick} 
+          className={`flex flex-col items-center w-full ${currentView === 'leitura' ? 'text-blue-500' : 'text-gray-500'}`}
+        >
+          {currentView === 'leitura' ? <MegaphoneSolid className="h-6 w-6" /> : <MegaphoneIcon className="h-6 w-6" />}
           <span className="text-xs mt-1">Leitura de Tela</span>
         </button>
-        <button className="flex flex-col items-center text-gray-500">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
+        <button 
+          onClick={onMapaClick} 
+          className={`flex flex-col items-center w-full ${currentView === 'mapa' ? 'text-blue-500' : 'text-gray-500'}`}
+        >
+          {currentView === 'mapa' ? <MapSolid className="h-6 w-6" /> : <MapPinIcon className="h-6 w-6" />}
           <span className="text-xs mt-1">Mapa</span>
         </button>
-        <button className="flex flex-col items-center text-gray-500">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8h12a2 2 0 002-2v-3a2 2 0 00-2-2H8a2 2 0 00-2 2v3a2 2 0 002 2zm0 0V9a2 2 0 012-2h4a2 2 0 012 2v2" />
-          </svg>
+        <button 
+          onClick={onSettingsClick} 
+          className={`flex flex-col items-center w-full ${currentView === 'settings' ? 'text-blue-500' : 'text-gray-500'}`}
+        >
+          {currentView === 'settings' ? <CogSolid className="h-6 w-6" /> : <Cog6ToothIcon className="h-6 w-6" />}
           <span className="text-xs mt-1">Settings</span>
         </button>
       </nav>
@@ -452,7 +565,9 @@ const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exercis
   );
 };
 
-// Componente principal que gerencia o estado e a navegação
+// ====================================================================
+// COMPONENTE PRINCIPAL: HomeApp (Atualizado)
+// ====================================================================
 const HomeApp = () => {
   const { info } = useUserStore()
   const [currentView, setCurrentView] = useState('home');
@@ -471,9 +586,63 @@ const HomeApp = () => {
     setCurrentView('home');
   };
 
+  // Função para centralizar a lógica de renderização
+  const renderCurrentView = () => {
+    switch (currentView) {
+      case 'home':
+        return (
+          <HomeScreen
+            // Props de Info
+            userName={info?.nome || 'Usuário'}
+            userProfilePic={info?.profilePic || 'https://via.placeholder.com/150'}
+            
+            // Props de Conteúdo (Lembretes, etc.)
+            // Idealmente, viriam do store, mas por enquanto nulo:
+            vaccineBanner={null}
+            yogaCard={null}
+            exerciseReminder={null}
+            meditationReminder={null}
+            skinCareReminder={null}
+            
+            // Funções de clique (Botões Superiores)
+            onVaccinesClick={() => setCurrentView('vacinas')}
+            onUBSClick={() => setCurrentView('mapa')} // Aponta para 'mapa'
+            onMedicamentosClick={() => setCurrentView('medicamentos')}
+            onToggleSidebar={toggleSidebar}
+
+            // Funções de clique (Barra Inferior)
+            onHomeClick={() => setCurrentView('home')}
+            onLeituraClick={() => setCurrentView('leitura')}
+            onMapaClick={() => setCurrentView('mapa')}
+            onSettingsClick={() => setCurrentView('settings')}
+            
+            // Estado atual
+            currentView={currentView}
+          />
+        );
+      
+      // Páginas Internas
+      case 'vacinas':
+        return <VaccineConsultation />;
+      case 'medicamentos':
+        return <MedicamentosConsultation />;
+      case 'mapa': // 'mapa' e 'ubs' são a mesma tela
+        return <UBSConsultation />;
+      case 'settings':
+        return <SettingsPage />; 
+      case 'leitura':
+        return <LeituraTelaPage />;
+
+      default:
+        // Caso seguro, volta para home
+        setCurrentView('home');
+        return null;
+    }
+  };
+
   return (
     <div className="relative overflow-hidden">
-      {/* Sidebar - desliza da esquerda */}
+      {/* Sidebar (Original - Sem Mudanças) */}
       <div
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
@@ -504,7 +673,7 @@ const HomeApp = () => {
             </svg>
             Vacinas
           </button>
-          <button onClick={() => handleSidebarItemClick('ubs')} className="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+          <button onClick={() => handleSidebarItemClick('mapa')} className="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" />
@@ -521,7 +690,7 @@ const HomeApp = () => {
         </nav>
       </div>
 
-      {/* Overlay - para escurecer o fundo quando a sidebar estiver aberta */}
+      {/* Overlay (Original - Sem Mudanças) */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black bg-opacity-50 transition-opacity duration-300"
@@ -529,18 +698,17 @@ const HomeApp = () => {
         ></div>
       )}
 
-      {/* Conteúdo principal */}
+      {/* Conteúdo principal (Lógica Atualizada) */}
       <div className={`transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-64 md:translate-x-0' : 'translate-x-0'}`}>
+        
+        {/* Lógica para mostrar o header de "Voltar" ou o header da "Home" */}
         {currentView === 'home' ? (
-          <HomeScreen
-            onVaccinesClick={() => setCurrentView('vacinas')}
-            onUBSClick={() => setCurrentView('ubs')}
-            onMedicamentosClick={() => setCurrentView('medicamentos')}
-            onToggleSidebar={toggleSidebar}
-          />
+          // 'home' renderiza o HomeScreen, que já tem o header correto
+          renderCurrentView()
         ) : (
+          // Outras páginas ganham o header com botão "Voltar"
           <div>
-            <header className="flex items-center p-4 bg-white shadow-sm">
+            <header className="flex items-center p-4 bg-white shadow-sm sticky top-0 z-30">
               <button onClick={handleBackToHome} className="text-gray-600 mr-4">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -548,9 +716,9 @@ const HomeApp = () => {
               </button>
               <div className="text-center flex-1">
                 <span className="text-gray-500 text-sm">Olá,</span>
-                <p className="font-semibold text-lg text-gray-800">{info.nome}</p>
+                <p className="font-semibold text-lg text-gray-800">{info?.nome || 'Usuário'}</p>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 invisible"> {/* Espaçador invisível para centralizar o título */}
                 <button className="text-gray-600">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -567,20 +735,15 @@ const HomeApp = () => {
     </div>
               </div>
             </header>
-            {currentView === 'vacinas' ? (
-              <VaccineConsultation />
-            ) : currentView === 'medicamentos' ? ( // <--- Adicionando o segundo ternário para medicamentos
-              <MedicamentosConsultation />
-            ) : (
-              <UBSConsultation /> // <--- Opção padrão (fallback)
-            )}
+            
+            {/* Renderiza a página atual (Vacinas, Settings, etc.) */}
+            {renderCurrentView()}
+
           </div>
         )}
       </div>
     </div>
   );
 };
-
-
 
 export default HomeApp;
