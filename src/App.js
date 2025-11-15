@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom'; 
 import HomeScreen from './features/home/HomeScreen';
 import VaccineConsultation from './shared/components/Vacinas';
 import Medicamentos from './shared/components/Medicamentos';
@@ -7,14 +7,21 @@ import SplashScreen from './features/splash/SplashScreen';
 import SplashScreenForgotPassword from './features/splash/SplashScrenForgotPassword';
 import SplashScreenRegister from './features/splash/SplashScrenRegister';
 import PrivateRoute from './shared/components/PrivateRoute';
-import { AuthProvider } from './shared/context/AuthContext';
+// Removido AuthProvider não utilizado
 import PublicRoute from './shared/components/PublicRoute';
-import { Toaster } from 'react-hot-toast'; // Importe o componente Toaster
+import { Toaster } from 'react-hot-toast';
 import { requestForToken, onMessageListener } from './firebase';
 import useAuthStore from './shared/store/auth-store';
-import InicialPage from './shared/components/InicialPage'
-import Navbar from './shared/components/Navbar';
-import HomeApp from './shared/components/InicialPage';
+
+// ----- IMPORT CORRIGIDO -----
+// 1. A ÚNICA PÁGINA que precisamos importar é a InicialPage
+import InicialPage from './shared/components/InicialPage'; 
+
+// 2. REMOVEMOS os imports que estavam dando erro:
+// import ChatPage from './features/chat/ChatPage'; (REMOVIDO)
+// import LeituraTelaPage from './features/leitura/LeituraTelaPage'; (REMOVIDO)
+// import MapaPage from './features/mapa/MapaPage'; (REMOVIDO)
+// import SettingsPage from './features/settings/SettingsPage'; (REMOVIDO)
 
 
 const App = () => {
@@ -22,6 +29,7 @@ const App = () => {
   const { setFcmToken } = useAuthStore()
   const {user} = useAuthStore();
 
+  // ... (seu useEffect do Firebase - SEM MUDANÇAS) ...
   React.useEffect(() => {
     requestForToken()
       .then((currentToken) => {
@@ -33,42 +41,55 @@ const App = () => {
       });
   }, []);
 
-  // 2. Configura o Listener para mensagens em Foreground
   React.useEffect(() => {
-    // Registra o listener e obtém a função de limpeza (unsubscribe)
     const unsubscribe = onMessageListener().then(() => {
-      // O then é chamado quando uma mensagem chega, mas o listener continua ativo
     });
-
-    // Retorna a função de limpeza para que o listener seja removido ao desmontar o componente
     return () => {
-      // Se necessário, implemente o unsubscribe do listener aqui.
-      // Para onMessage(), o listener é geralmente ativo enquanto o app está montado.
     };
   }, []);
 
   return (
     <div className="App">
-      <Router>
+      <HashRouter> 
         
+        {/* ----- Rotas Públicas (Sem alterações) ----- */}
         {!user && <PublicRoute>
           <Routes>
             <Route path="/forgot-password" element={<SplashScreenForgotPassword />} />
             <Route path="*" element={<SplashScreen />} />
           </Routes>
         </PublicRoute>}
+
+        {/* ----- Rotas Privadas (CORRIGIDO) ----- */}
         {user && <PrivateRoute>
           <Routes>
-            <Route path="/home" element={<InicialPage />} />
+            {/* Suas rotas que NÃO TÊM a barra de navegação */}
             <Route path="/vacinas" element={<VaccineConsultation />} />
             <Route path="/medicamentos" element={<Medicamentos />} />
-            <Route path="*" element={<HomeScreen />} />
+
+            {/* A rota /home aponta para InicialPage. 
+                O InicialPage.js agora cuida do resto (Settings, Mapa, etc.)
+            */}
+            <Route path="/home" element={<InicialPage />} /> 
+
+            {/* Rota fallback original, apontando para HomeScreen
+                (ou talvez devesse ser InicialPage também?)
+                Vamos manter seu original por via das dúvidas.
+            */}
+            <Route path="*" element={<HomeScreen />} /> 
+
+            {/* REMOVEMOS as rotas que davam erro:
+            <Route element={<InicialPage />}> 
+              <Route path="/home" element={<ChatPage />} /> 
+              ...
+            </Route>
+            */}
           </Routes>
         </PrivateRoute>}
-      </Router>
+      </HashRouter>
       <Toaster />
     </div>
   );
 };
 
-export default App; 
+export default App;
