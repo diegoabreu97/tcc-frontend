@@ -3,6 +3,8 @@ import { APIProvider, Map, Marker, Pin } from '@vis.gl/react-google-maps';
 import useUserStore from '../store/user-store';
 import MedicamentoService from '../../features/splash/services/MedicamentoService';
 import VacinaService from '../../features/splash/services/VacinaService';
+import FundoLogin from '../../../src/features/splash/assets/Fundologin.png'
+import logoEmpresa from '../../../src/features/splash/assets/logoEmpresa.png'
 import FundoLogin from '../../../src/features/splash/assets/Fundologin.png';
 import { ChevronRightIcon } from '@heroicons/react/24/solid';
 
@@ -244,16 +246,40 @@ const locations = [
 ];
 
 function MyMapComponent() {
-  const mapId = "YOUR_MAP_ID"; // Obtain from Google Maps console if using advanced markers
+  const mapId = "YOUR_MAP_ID"; 
 
   return (
-    <div style={{ height: '500px', width: '100%' }}>
-      <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
-        <Map
-          center={{ lat: 34.052235, lng: -118.243683 }} // Initial map center
-          zoom={12}
-          mapId={mapId} // Required for advanced markers
+    // O contêiner interno do mapa já está estilizado como card
+    <div className="w-full max-w-4xl pt-4"> 
+        
+        {/* Contêiner do Mapa */}
+        <div 
+            style={{ height: '500px', width: '100%' }}
+            className="rounded-lg overflow-hidden border border-gray-200 shadow-lg" 
         >
+            <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
+                <Map
+                    center={{ lat: 34.052235, lng: -118.243683 }}
+                    zoom={12}
+                    mapId={mapId}
+                >
+                    {locations.map((location, index) => (
+                        <Marker key={index} position={{ lat: location.lat, lng: location.lng }}>
+                            {/* Mantendo as cores originais do Pin */}
+                            <Pin background={'#FBBC04'} glyphColor={'#000'} borderColor={'#000'} />
+                        </Marker>
+                    ))}
+                </Map>
+            </APIProvider>
+        </div>
+        
+        {/* Exemplo de Legenda Estilizada com a cor Teal */}
+        <div className="mt-6 p-4 bg-teal-50 border-l-4 border-teal-500 rounded-lg shadow-sm">
+            <p className="text-sm text-gray-700 font-semibold">
+                <span className={`inline-block w-3 h-3 rounded-full ${PRIMARY_COLOR_CLASSES} mr-2`}></span> 
+                Os marcadores no mapa indicam as Unidades Básicas de Saúde (UBS).
+            </p>
+        </div>
           {locations.map((location, index) => (
             <Marker key={index} position={{ lat: location.lat, lng: location.lng }}>
               <Pin background={'#FBBC04'} glyphColor={'#000'} borderColor={'#000'} />
@@ -265,19 +291,37 @@ function MyMapComponent() {
   );
 }
 
+// --- UBSConsultation (Componente Principal) ---
 const UBSConsultation = () => {
   return (
-    <div className="flex items-center justify-center w-full min-h-screen p-4 bg-gray-100 font-sans">
-      <div className="w-full max-w-2xl p-8 bg-white rounded-xl shadow-lg text-center">
-        <h2 className="mb-6 text-3xl font-bold text-gray-800">
-          Consulta de UBS
+    // 1. Contêiner principal com a imagem de fundo
+    <div 
+      className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
+      // Troque `url(${FundoLogin})` pela sua imagem real
+      style={{ backgroundImage:  `url(${FundoLogin})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}
+    >
+      {/* 2. Sobreposição (Overlay) branca com opacidade */}
+      <div className="absolute inset-0 bg-white opacity-80 z-10"></div>
+      
+      {/* 3. Card Principal com o conteúdo (z-index maior para ficar acima do overlay) */}
+      <div className="w-full max-w-4xl p-8 bg-white rounded-xl shadow-2xl z-20 text-center">
+        
+        {/* Título Estilizado com cor TEXT_COLOR_CLASSES (cinza escuro) */}
+        <h2 className={`mb-6 text-3xl font-extrabold ${TEXT_COLOR_CLASSES} border-b-2 border-teal-100 pb-3 mx-auto max-w-lg`}>
+          🗺️ Consulta de UBS
         </h2>
-        <p className="text-gray-600">
-          Em breve, você poderá consultar as Unidades Básicas de Saúde (UBS) próximas a você.
+        
+        {/* Descrição com cor e fonte melhoradas */}
+        <p className="text-lg text-gray-700 mb-8 font-light">
+          Localize as Unidades Básicas de Saúde (UBS) próximas a você para um atendimento rápido e eficaz.
         </p>
-        <MyMapComponent />
+        
+        {/* O mapa estilizado entra aqui */}
+        {/* OBS: Certifique-se de que o MyMapComponent está disponível (importado ou definido) */}
+        <MyMapComponent /> 
       </div>
-
+      
+      {/* O código anterior tinha um </div> faltando. A estrutura acima está corrigida. */}
     </div>
   );
 };
@@ -364,6 +408,9 @@ const HomeScreen = ({
   currentView 
 }) => {
   return (
+    
+    <div className="bg-gray-100 min-h-screen font-sans">
+      {/* Header */}
     <div className="bg-gray-100 min-h-screen font-sans pb-20"> {/* Adicionado pb-20 para não cobrir a nav */}
       
       {/* Header - ATUALIZADO com ícones da direita */}
@@ -378,11 +425,21 @@ const HomeScreen = ({
           <p className="font-semibold text-lg text-gray-800">{userName}</p>
         </div>
 
+        <div className="flex items-center space-x-2"> 
         {/* Ícones da Direita - ATIVADOS */}
         <div className="flex items-center space-x-3"> 
           <button className="text-gray-600">
             <MagnifyingGlassIcon className="h-6 w-6" />
           </button>
+          <div>
+      <img 
+        alt="Foto de Perfil"
+        // 3. Usa a variável importada como fallback
+        src={userProfilePic || logoEmpresa} 
+        className="w-12 h-13 rounded-full object-cover"
+      />
+      {/* Restante do componente */}
+    </div>
           <img
             className="h-8 w-8 rounded-full object-cover"
             src={userProfilePic || 'https://via.placeholder.com/150'}
@@ -416,6 +473,7 @@ const HomeScreen = ({
             </button>
           </div>
           <div className="relative mb-4">
+            {/* //////////////////////////////////////////////////////////////////////////// */}
             <img
               src={vaccineBanner || 'https://via.placeholder.com/600x300'}
               alt="Vacina é amor e cuidado"
@@ -429,7 +487,7 @@ const HomeScreen = ({
           <div className="bg-white rounded-lg p-3 shadow flex items-center space-x-4">
             <img
               className="h-16 w-16 rounded-lg"
-              src={yogaCard || 'https://via.placeholder.com/150'}
+              src={yogaCard || 'https://piracicaba.sp.gov.br/wp-content/uploads/2024/10/2-1024x682-1.jpg'}
               alt="Yoga Class"
             />
             <div className="flex-1">
@@ -443,27 +501,34 @@ const HomeScreen = ({
             </button>
           </div>
           <div>
-            <div className="flex justify-between items-center mb-4 mt-6">
+            <div className="flex justify-between items-center mb-8 mt-10">
               <h2 className="text-xl font-bold text-gray-800">Lembretes</h2>
               <a href="#" className="text-sm text-teal-600">Saiba mais</a>
             </div>
-            <div className="flex space-x-4 overflow-x-auto pb-4">
-              <div className="flex-shrink-0 w-44 bg-blue-100 rounded-lg shadow-sm overflow-hidden text-center">
+            <div className="flex space-x-4 overflow-x-auto pb-8">
+              <div className="flex-shrink-0 w-80 bg-blue-100 rounded-lg shadow-sm overflow-hidden text-center">
                 <p className="p-3 text-sm font-semibold text-gray-800">Se exercite!!</p>
-                <img src={exerciseReminder || 'https://via.placeholder.com/200x300'} alt="Exercite-se" className="w-full h-auto" />
+                <img src={exerciseReminder || 'https://cdn.borainvestir.b3.com.br/2023/06/30145447/atividades-fisicas-e-dinheiro-900x540.jpeg'} alt="Exercite-se" className="w-full h-auto" />
               </div>
-              <div className="flex-shrink-0 w-44 bg-gray-100 rounded-lg shadow-sm overflow-hidden text-center">
-                <p className="p-3 text-sm font-semibold text-gray-800">Seu corpo deve receber atenção!!</p>
-                <img src={meditationReminder || 'https://via.placeholder.com/200x300'} alt="Meditação" className="w-full h-auto" />
+              <div className="flex-shrink-0 w-80 bg-gray-100 rounded-lg shadow-sm overflow-hidden text-center">
+                <p className="p-3 text-sm font-semibold text-gray-800">Cuide do seu corpo</p>
+                <img src={meditationReminder || 'https://vivaassim.com.br/img/posts/2022/04/07042022-cuidados-essenciais-para-manter-a-saude-em-dia-e-prevenir-doencas-1.jpg'} alt="Meditação" className="w-full h-auto" />
               </div>
-              <div className="flex-shrink-0 w-44 bg-orange-100 rounded-lg shadow-sm overflow-hidden text-center">
+              <div className="flex-shrink-0 w-80 bg-orange-100 rounded-lg shadow-sm overflow-hidden text-center">
                 <p className="p-3 text-sm font-semibold text-gray-800">Cuide da sua pele</p>
-                <img src={skinCareReminder || 'https://via.placeholder.com/200x300'} alt="Cuidados com a pele" className="w-full h-auto" />
+                <img src={skinCareReminder || 'https://avidaplena.com.br/wp-content/uploads/2023/07/Libbs_A_Vida_Plena_Cuidados_gerais_com_pele_780x450.png'} alt="Cuidados com a pele" className="w-full h-auto" />
               </div>
             </div>
           </div>
         </div>
       </main>
+{/* //////////////////////////////////////////////////////////////////////////// */}
+      {/* Tab Bar Inferior */}
+      <nav className="fixed bottom-0 left-0 w-full bg-white flex justify-around items-center p-3 shadow-top">
+        <button onClick={onVaccinesClick} className="flex flex-col items-center text-gray-500">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+          </svg>
 
       {/* Tab Bar Inferior - ATUALIZADA */}
       <nav className="fixed bottom-0 left-0 w-full bg-white flex justify-around items-center p-3 shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
@@ -659,11 +724,15 @@ const HomeApp = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </button>
-                <img
-                  className="h-8 w-8 rounded-full"
-                  src={'https://via.placeholder.com/150'}
-                  alt="User Profile"
-                />
+       <div>
+      <img 
+        alt="Foto de Perfil"
+        // 3. Usa a variável importada como fallback
+        src={logoEmpresa} 
+        className="w-12 h-12 rounded-full object-cover"
+      />
+      {/* Restante do componente */}
+    </div>
               </div>
             </header>
             
