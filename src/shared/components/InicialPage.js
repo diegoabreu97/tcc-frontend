@@ -10,19 +10,148 @@ const PRIMARY_COLOR_CLASSES = 'bg-teal-500 hover:bg-teal-600 focus:ring-teal-500
 const TEXT_COLOR_CLASSES = 'text-balck';
 const FOCUS_BORDER_CLASSES = 'focus:ring-teal-500';
 
+const AgendamentoScreen = () => {
+  const [vacinas, setVacinas] = useState([]);
+  const [ubsList, setUbsList] = useState([]);
+
+  const [selectedVacina, setSelectedVacina] = useState('');
+  const [selectedUBS, setSelectedUBS] = useState('');
+  const [nomePaciente, setNomePaciente] = useState('');
+  const [faixaEtaria, setFaixaEtaria] = useState('');
+
+  // Dias disponíveis (mock visual)
+  const diasDisponiveis = [15, 1, 22, 23, 29, 30];
+
+  useEffect(() => {
+    // Puxa vacinas existentes
+    VacinaService.vacinas()
+      .then(data => setVacinas(data))
+      .catch(console.log);
+
+    // Puxa as UBS já usadas no mapa
+    setUbsList(locations.map(l => l.name));
+  }, []);
+
+  return (
+    <div
+      className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
+      style={{
+        backgroundImage: `url(${FundoLogin})`,
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="absolute inset-0 bg-white opacity-80 z-10"></div>
+
+      <div className="w-full max-w-md p-6 bg-white rounded-xl shadow-2xl z-20">
+        <h2 className="text-2xl font-bold text-gray-800 mb-1">Agendar Vacinação</h2>
+        <p className="text-red-400 text-sm mb-6">
+          Importante: você será notificado se o seu agendamento for aceito
+        </p>
+
+        {/* TIPO DA VACINA */}
+        <label className="block text-gray-700 text-sm mb-1">Tipo da vacina</label>
+        <input
+          type="text"
+          list="listaVacinas"
+          value={selectedVacina}
+          onChange={e => setSelectedVacina(e.target.value)}
+          placeholder="Digite aqui..."
+          className="w-full p-3 mb-4 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500"
+        />
+        <datalist id="listaVacinas">
+          {vacinas.map(v => (
+            <option key={v.nomeVacina} value={v.nomeVacina} />
+          ))}
+        </datalist>
+
+        {/* UBS */}
+        <label className="block text-gray-700 text-sm mb-1">Locais disponíveis</label>
+        <select
+          className="w-full p-3 mb-6 border rounded-lg shadow-sm bg-teal-500 text-white text-lg font-semibold"
+          value={selectedUBS}
+          onChange={e => setSelectedUBS(e.target.value)}
+        >
+          <option value="">Selecione</option>
+          {ubsList.map(u => (
+            <option key={u} value={u}>{u}</option>
+          ))}
+        </select>
+
+        {/* CALENDÁRIO SIMPLIFICADO */}
+        <label className="block text-gray-700 text-sm mb-2">Dias para o agendamento</label>
+        <div className="grid grid-cols-7 gap-2 mb-6 text-center">
+          {Array.from({ length: 30 }, (_, i) => i + 1).map(day => {
+            const isDisponivel = diasDisponiveis.includes(day);
+            const bg = isDisponivel ? "bg-teal-300" : "bg-gray-200";
+            return (
+              <div
+                key={day}
+                className={`p-2 rounded-full text-sm ${bg}`}
+              >
+                {day}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="flex justify-around mb-6 text-xs">
+          <div className="flex items-center space-x-1">
+            <span className="w-3 h-3 bg-gray-300 rounded-full"></span>
+            <span>Fechado</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <span className="w-3 h-3 bg-teal-400 rounded-full"></span>
+            <span>Disponível</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <span className="w-3 h-3 bg-black rounded-full"></span>
+            <span>Esgotado</span>
+          </div>
+        </div>
+
+        {/* Nome do Paciente */}
+        <label className="block text-gray-700 text-sm mb-1">Nome do paciente</label>
+        <input
+          type="text"
+          value={nomePaciente}
+          onChange={e => setNomePaciente(e.target.value)}
+          placeholder="Lucas"
+          className="w-full p-3 mb-4 border rounded-lg shadow-sm"
+        />
+
+        {/* Faixa Etária */}
+        <label className="block text-gray-700 text-sm mb-1">Faixa etária</label>
+        <input
+          type="text"
+          value={faixaEtaria}
+          onChange={e => setFaixaEtaria(e.target.value)}
+          placeholder="Ex: 18+"
+          className="w-full p-3 mb-4 border rounded-lg shadow-sm"
+        />
+{/* //////////////////////////////////////////////////////////////////////////////////////////////////////// */}
+        {/* Botão Final */}
+        <button className="w-full bg-teal-500 text-white p-3 rounded-lg font-semibold text-lg shadow hover:bg-teal-600">
+          Enviar Agendamento
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// AgendamentoConsultation
+
 const MedicamentosConsultation = () => {
 
   const [allMedicamentos, setallMedicamentos] = useState([])
   const [filteredMedicamentos, setFilteredMedicamentos] = useState([])
   useEffect(() => {
     MedicamentoService.medicamentos().then(setallMedicamentos).catch(console.log)
-  
+
 
   }, [])
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMedicamentos, setSelectedMedicamentos] = useState(null)
-
-
 
   const handleSearch = (medicamentoName) => {
     console.log(medicamentoName)
@@ -32,7 +161,7 @@ const MedicamentosConsultation = () => {
   };
 
   return (
-      <div
+    <div
       className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
       style={{ backgroundImage: `url(${FundoLogin})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}
     >
@@ -125,18 +254,18 @@ const VaccineConsultation = () => {
     setSearchTerm(null);
   };
 
-return (
-       <div
+  return (
+    <div
       className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
       style={{ backgroundImage: `url(${FundoLogin})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}
     >
       <div className="absolute inset-0 bg-white opacity-80 z-1"></div>
       <div className="w-full max-w-2xl p-8 bg-white rounded-xl shadow-2xl z-50"> {/* Card mais elegante */}
-        
+
         <h2 className={`mb-8 text-3xl font-extrabold text-center ${TEXT_COLOR_CLASSES}`}>
           💉 Consulta de Vacinas
         </h2>
-        
+
         {/* Campo de busca com a navbar dropdown */}
         <div className="relative mb-6">
           <input
@@ -167,19 +296,19 @@ return (
             </div>
           )}
         </div>
-        
+
         {/* Detalhes da Vacina Selecionada */}
         {selectedVaccine ? (
           <div className="p-6 space-y-4 transition-all duration-500 bg-teal-50 border-l-4 border-teal-500 rounded-lg shadow-md">
-            
+
             <h3 className={`text-2xl font-bold ${TEXT_COLOR_CLASSES} border-b border-teal-200 pb-2`}>
               {selectedVaccine.nomeVacina}
             </h3>
-            
+
             <ul className="list-none p-0 space-y-3 text-gray-700">
               {/* Descrição em um parágrafo separado */}
               <li className="text-gray-600 text-sm italic">
-                 {selectedVaccine.descVacina}
+                {selectedVaccine.descVacina}
               </li>
 
               {/* Itens detalhados estilizados como tabela limpa */}
@@ -214,11 +343,13 @@ return (
     </div>
   );
 };
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const currentView = () => {
   switch (currentView) {
     case 'vacinas':
       return <VaccineConsultation />;
+    case 'agendamentos':
+      return <AgendamentoScreen/>
     case 'medicamentos': // <--- NOVA OPÇÃO ADICIONADA
       return <MedicamentosConsultation />;
     case 'ubs':
@@ -226,7 +357,7 @@ const currentView = () => {
       return <UBSConsultation />;
   }
 };
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const locations = [
   { lat: 34.052235, lng: -118.243683, name: 'Location A' },
@@ -234,44 +365,41 @@ const locations = [
   { lat: 34.062235, lng: -118.243683, name: 'Location C' },
 ];
 
-
-
-
 function MyMapComponent() {
-  const mapId = "YOUR_MAP_ID"; 
+  const mapId = "YOUR_MAP_ID";
 
   return (
     // O contêiner interno do mapa já está estilizado como card
-    <div className="w-full max-w-4xl pt-4"> 
-        
-        {/* Contêiner do Mapa */}
-        <div 
-            style={{ height: '500px', width: '100%' }}
-            className="rounded-lg overflow-hidden border border-gray-200 shadow-lg" 
-        >
-            <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
-                <Map
-                    center={{ lat: 34.052235, lng: -118.243683 }}
-                    zoom={12}
-                    mapId={mapId}
-                >
-                    {locations.map((location, index) => (
-                        <Marker key={index} position={{ lat: location.lat, lng: location.lng }}>
-                            {/* Mantendo as cores originais do Pin */}
-                            <Pin background={'#FBBC04'} glyphColor={'#000'} borderColor={'#000'} />
-                        </Marker>
-                    ))}
-                </Map>
-            </APIProvider>
-        </div>
-        
-        {/* Exemplo de Legenda Estilizada com a cor Teal */}
-        <div className="mt-6 p-4 bg-teal-50 border-l-4 border-teal-500 rounded-lg shadow-sm">
-            <p className="text-sm text-gray-700 font-semibold">
-                <span className={`inline-block w-3 h-3 rounded-full ${PRIMARY_COLOR_CLASSES} mr-2`}></span> 
-                Os marcadores no mapa indicam as Unidades Básicas de Saúde (UBS).
-            </p>
-        </div>
+    <div className="w-full max-w-4xl pt-4">
+
+      {/* Contêiner do Mapa */}
+      <div
+        style={{ height: '500px', width: '100%' }}
+        className="rounded-lg overflow-hidden border border-gray-200 shadow-lg"
+      >
+        <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
+          <Map
+            center={{ lat: 34.052235, lng: -118.243683 }}
+            zoom={12}
+            mapId={mapId}
+          >
+            {locations.map((location, index) => (
+              <Marker key={index} position={{ lat: location.lat, lng: location.lng }}>
+                {/* Mantendo as cores originais do Pin */}
+                <Pin background={'#FBBC04'} glyphColor={'#000'} borderColor={'#000'} />
+              </Marker>
+            ))}
+          </Map>
+        </APIProvider>
+      </div>
+
+      {/* Exemplo de Legenda Estilizada com a cor Teal */}
+      <div className="mt-6 p-4 bg-teal-50 border-l-4 border-teal-500 rounded-lg shadow-sm">
+        <p className="text-sm text-gray-700 font-semibold">
+          <span className={`inline-block w-3 h-3 rounded-full ${PRIMARY_COLOR_CLASSES} mr-2`}></span>
+          Os marcadores no mapa indicam as Unidades Básicas de Saúde (UBS).
+        </p>
+      </div>
     </div>
   );
 }
@@ -280,41 +408,41 @@ function MyMapComponent() {
 const UBSConsultation = () => {
   return (
     // 1. Contêiner principal com a imagem de fundo
-    <div 
+    <div
       className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
       // Troque `url(${FundoLogin})` pela sua imagem real
-      style={{ backgroundImage:  `url(${FundoLogin})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}
+      style={{ backgroundImage: `url(${FundoLogin})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}
     >
       {/* 2. Sobreposição (Overlay) branca com opacidade */}
       <div className="absolute inset-0 bg-white opacity-80 z-10"></div>
-      
+
       {/* 3. Card Principal com o conteúdo (z-index maior para ficar acima do overlay) */}
       <div className="w-full max-w-4xl p-8 bg-white rounded-xl shadow-2xl z-20 text-center">
-        
+
         {/* Título Estilizado com cor TEXT_COLOR_CLASSES (cinza escuro) */}
         <h2 className={`mb-6 text-3xl font-extrabold ${TEXT_COLOR_CLASSES} border-b-2 border-teal-100 pb-3 mx-auto max-w-lg`}>
           🗺️ Consulta de UBS
         </h2>
-        
+
         {/* Descrição com cor e fonte melhoradas */}
         <p className="text-lg text-gray-700 mb-8 font-light">
           Localize as Unidades Básicas de Saúde (UBS) próximas a você para um atendimento rápido e eficaz.
         </p>
-        
+
         {/* O mapa estilizado entra aqui */}
         {/* OBS: Certifique-se de que o MyMapComponent está disponível (importado ou definido) */}
-        <MyMapComponent /> 
+        <MyMapComponent />
       </div>
-      
+
       {/* O código anterior tinha um </div> faltando. A estrutura acima está corrigida. */}
     </div>
   );
 };
 
 // Componente da tela inicial
-const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exerciseReminder, meditationReminder, skinCareReminder, onVaccinesClick, onUBSClick, onToggleSidebar, onMedicamentosClick }) => {
+const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exerciseReminder, meditationReminder, skinCareReminder, onVaccinesClick, onUBSClick, onToggleSidebar, onMedicamentosClick, onAgendamentosClick }) => {
   return (
-    
+
     <div className="bg-gray-100 min-h-screen font-sans">
       {/* Header */}
       <header className="flex items-center justify-between p-4 bg-white shadow-sm">
@@ -328,21 +456,21 @@ const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exercis
           <p className="font-semibold text-lg text-gray-800">{userName}</p>
         </div>
 
-        <div className="flex items-center space-x-2"> 
+        <div className="flex items-center space-x-2">
           <button className="text-gray-600">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </button>
           <div>
-      <img 
-        alt="Foto de Perfil"
-        // 3. Usa a variável importada como fallback
-        src={userProfilePic || logoEmpresa} 
-        className="w-12 h-13 rounded-full object-cover"
-      />
-      {/* Restante do componente */}
-    </div>
+            <img
+              alt="Foto de Perfil"
+              // 3. Usa a variável importada como fallback
+              src={userProfilePic || logoEmpresa}
+              className="w-12 h-13 rounded-full object-cover"
+            />
+            {/* Restante do componente */}
+          </div>
         </div>
       </header>
 
@@ -369,13 +497,35 @@ const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exercis
             >
               Medicamentos
             </button>
+            {/* /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
+            <button
+              onClick={onAgendamentosClick}
+              className="bg-white text-gray-600 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap"
+            >
+              Agendamentos
+            </button>
+            {/* /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
           </div>
-          <div className="relative mb-4">
-            {/* //////////////////////////////////////////////////////////////////////////// */}
+          <div className="flex gap-4 mb-4">
             <img
-              src={vaccineBanner || 'https://via.placeholder.com/600x300'}
-              alt="Vacina é amor e cuidado"
-              className="w-full rounded-xl"
+              src={vaccineBanner || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1qPbHfbLtsi7viAqVMVCM8EgOw4DgtjNU-Q&s'}
+              className=" rounded-xl"
+            />
+            <img
+              src={vaccineBanner || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmTCP0r2-cD_47UZHDFc12Jes58yWY20lBXw&s'}
+              className=" rounded-xl"
+            />
+            <img
+              src={vaccineBanner || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZfFHuI_apORowKihPiVGMcc9x-lZHPoG2-g&s'}
+              className=" rounded-xl"
+            />
+            <img
+              src={vaccineBanner || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZ_b-kcjtdgEnDS1DOasxU5DDqx1QgR8gj-g&s'}
+              className=" rounded-xl"
+            />
+            <img
+              src={vaccineBanner || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWNgfA4Ly65DaeegQHzxzDkL6oVY2Bs9xzKA&s'}
+              className=" rounded-xl"
             />
           </div>
           <div className="flex justify-between items-center mb-4">
@@ -420,7 +570,7 @@ const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exercis
           </div>
         </div>
       </main>
-{/* //////////////////////////////////////////////////////////////////////////// */}
+      {/* /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
       {/* Tab Bar Inferior */}
       <nav className="fixed bottom-0 left-0 w-full bg-white flex justify-around items-center p-3 shadow-top">
         <button onClick={onVaccinesClick} className="flex flex-col items-center text-gray-500">
@@ -452,7 +602,7 @@ const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exercis
     </div>
   );
 };
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Componente principal que gerencia o estado e a navegação
 const HomeApp = () => {
   const { info } = useUserStore()
@@ -519,6 +669,15 @@ const HomeApp = () => {
             </svg>
             Medicamentos
           </button>
+          {/* /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
+          <button
+            onClick={() => handleSidebarItemClick('agendamentos')} className="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" />
+            </svg>
+            Agendamentos
+          </button>
+          {/* /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
         </nav>
       </div>
 
@@ -529,7 +688,7 @@ const HomeApp = () => {
           onClick={toggleSidebar}
         ></div>
       )}
-
+      {/* /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
       {/* Conteúdo principal */}
       <div className={`transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-64 md:translate-x-0' : 'translate-x-0'}`}>
         {currentView === 'home' ? (
@@ -538,7 +697,9 @@ const HomeApp = () => {
             onUBSClick={() => setCurrentView('ubs')}
             onMedicamentosClick={() => setCurrentView('medicamentos')}
             onToggleSidebar={toggleSidebar}
+            onAgendamentosClick={() => setCurrentView('agendamentos')}
           />
+          ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ) : (
           <div>
             <header className="flex items-center p-4 bg-white shadow-sm">
@@ -557,24 +718,27 @@ const HomeApp = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </button>
-       <div>
-      <img 
-        alt="Foto de Perfil"
-        // 3. Usa a variável importada como fallback
-        src={logoEmpresa} 
-        className="w-12 h-12 rounded-full object-cover"
-      />
-      {/* Restante do componente */}
-    </div>
+                <div>
+                  <img
+                    alt="Foto de Perfil"
+                    // 3. Usa a variável importada como fallback
+                    src={logoEmpresa}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                  {/* Restante do componente */}
+                </div>
               </div>
             </header>
             {currentView === 'vacinas' ? (
               <VaccineConsultation />
-            ) : currentView === 'medicamentos' ? ( // <--- Adicionando o segundo ternário para medicamentos
+            ) : currentView === 'medicamentos' ? (
               <MedicamentosConsultation />
+            ) : currentView === 'agendamentos' ? (
+              <AgendamentoScreen />
             ) : (
-              <UBSConsultation /> // <--- Opção padrão (fallback)
+              <UBSConsultation />
             )}
+            {/* /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
           </div>
         )}
       </div>
