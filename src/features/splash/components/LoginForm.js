@@ -40,26 +40,26 @@ const LoginForm = ({ goToRegister }) => {
         return true;
     };
 
-//     const redirectTo =
-//     new URLSearchParams(location.search).get('redirect') || '/home';
+    const redirectTo =
+    new URLSearchParams(location.search).get('redirect') || '/home';
 
-//     const refresh = async() => {
-//       const token = localStorage.getItem('accessToken');
-//       if (token) {
-//             // Se já tem token, decodifica e atualiza o estado global
-//             // Isso garante que o estado persista ao recarregar a página
-//             try {
-//               const me = await LoginService.me();
-//               const userData = jwtDecode(token);
-//               setMe(me.role, me);
-//               setAuthData(userData); // Atualiza o auth store
-//               navigate(redirectTo, { replace: true });
-//             } catch (e) {
-//               // Token inválido, limpa o token armazenado
-//               localStorage.removeItem('accessToken');
-//             }
-//     }
-//   }
+    const refresh = async() => {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+            // Se já tem token, decodifica e atualiza o estado global
+            // Isso garante que o estado persista ao recarregar a página
+            try {
+              const me = await LoginService.me();
+              const userData = jwtDecode(token);
+              setMe(me.role, me);
+              setAuthData(userData); // Atualiza o auth store
+              navigate(redirectTo, { replace: true });
+            } catch (e) {
+              // Token inválido, limpa o token armazenado
+              localStorage.removeItem('accessToken');
+            }
+        }
+    }
 
     const checkPasswordStrength = (password) => {
         if (password.length < 8) {
