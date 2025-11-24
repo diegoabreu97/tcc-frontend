@@ -540,29 +540,10 @@ const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exercis
             />
           </div>
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-sm font-semibold text-gray-600">Conscientização contra o tabaco</h3>
-            <a href="#" className="text-sm text-teal-600">Saiba mais</a>
-          </div>
-          <div className="bg-white rounded-lg p-3 shadow flex items-center space-x-4">
-            <img
-              className="h-16 w-16 rounded-lg"
-              src={yogaCard || 'https://via.placeholder.com/150'}
-              alt="Yoga Class"
-            />
-            <div className="flex-1">
-              <h4 className="font-semibold text-gray-800">Yoga Class</h4>
-              <p className="text-sm text-gray-500">Secretaria Municipal de Saúde</p>
-            </div>
-            <button className="text-gray-400">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-            </button>
           </div>
           <div>
             <div className="flex justify-between items-center mb-8 mt-10">
               <h2 className="text-xl font-bold text-gray-800">Lembretes</h2>
-              <a href="#" className="text-sm text-teal-600">Saiba mais</a>
             </div>
             <div className="flex space-x-4 overflow-x-auto pb-8">
               <div className="flex-shrink-0 w-80 bg-blue-100 rounded-lg shadow-sm overflow-hidden text-center">
