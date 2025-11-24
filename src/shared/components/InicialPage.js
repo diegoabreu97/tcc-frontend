@@ -5,6 +5,7 @@ import MedicamentoService from '../../features/splash/services/MedicamentoServic
 import VacinaService from '../../features/splash/services/VacinaService';
 import FundoLogin from '../../../src/features/splash/assets/Fundologin.png'
 import logoEmpresa from '../../../src/features/splash/assets/logoEmpresa.png'
+import UbsService from '../../../src/features/splash/services/UbsService'
 
 const PRIMARY_COLOR_CLASSES = 'bg-teal-500 hover:bg-teal-600 focus:ring-teal-500';
 // teal-500 é um bom match
@@ -523,7 +524,8 @@ const locations = [
   { lat: 34.052235, lng: -118.253683, name: 'Location B' },
   { lat: 34.062235, lng: -118.243683, name: 'Location C' },
 ];
-function MyMapComponent() {
+
+function MyMapComponent(props) {
   const mapId = "YOUR_MAP_ID";
 
   return (
@@ -537,13 +539,12 @@ function MyMapComponent() {
       >
         <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
           <Map
-    
-            center={{ lat: 34.052235, lng: -118.243683 }}
+            center={{ lat: props.lat, lng: props.lng }}
             zoom={12}
             mapId={mapId}
           >
-            {locations.map((location, index) => (
-              <Marker key={index} position={{ lat: location.lat, lng: location.lng }}>
+            {props.allUbs.map((location, index) => (
+              <Marker key={index} position={{ lat: location.latitude, lng: location.longitude }}>
                 {/* Mantendo as cores originais do Pin */}
                 <Pin background={'#FBBC04'} glyphColor={'#000'} borderColor={'#000'} />
               </Marker>
@@ -566,6 +567,16 @@ function MyMapComponent() {
 
 // --- UBSConsultation (Componente Principal) ---
 const UBSConsultation = () => {
+
+  const {info} = useUserStore()
+
+  const [allUbs, setallUbs] = useState([])
+  const [filteredUbs, setFilteredUbs] = useState([])
+  useEffect(() => {
+    UbsService.ubs().then(setallUbs).catch(console.log)
+
+  }, [])
+
   return (
     // 1. Contêiner principal com a imagem de fundo
     <div
@@ -585,15 +596,14 @@ const UBSConsultation = () => {
           🗺️ Consulta de UBS
         </h2>
 
-        {/* Descrição com cor e fonte melhoradas */}
-   
+        {/* Descrição com cor e fonte melhoradas */} 
         <p className="text-lg text-gray-700 mb-8 font-light">
           Localize as Unidades Básicas de Saúde (UBS) próximas a você para um atendimento rápido e eficaz.
         </p>
 
         {/* O mapa estilizado entra aqui */}
         {/* OBS: Certifique-se de que o MyMapComponent está disponível (importado ou definido) */}
-        <MyMapComponent />
+        <MyMapComponent allUbs={allUbs} lat={info.latitude} lng={info.longitude} />
       </div>
 
       {/* O código anterior tinha um </div> faltando.
@@ -705,33 +715,11 @@ const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exercis
             />
           </div>
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-sm font-semibold text-gray-600">Conscientização contra o tabaco</h3>
-            <a href="#" className="text-sm text-teal-600">Saiba mais</a>
-          </div>
-     
-          <div className="bg-white rounded-lg p-3 shadow flex items-center space-x-4">
-            <img
-              className="h-16 w-16 rounded-lg"
-              src={yogaCard ||
-              'https://via.placeholder.com/150'}
-              alt="Yoga Class"
-            />
-            <div className="flex-1">
-              <h4 className="font-semibold text-gray-800">Yoga Class</h4>
-              <p className="text-sm text-gray-500">Secretaria Municipal de Saúde</p>
-            </div>
-            
-            <button className="text-gray-400">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-            </button>
           </div>
      
           <div>
             <div className="flex justify-between items-center mb-8 mt-10">
               <h2 className="text-xl font-bold text-gray-800">Lembretes</h2>
-              <a href="#" className="text-sm text-teal-600">Saiba mais</a>
             </div>
             <div className="flex space-x-4 overflow-x-auto pb-8">
               <div 
