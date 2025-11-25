@@ -770,7 +770,7 @@ const HomeApp = () => {
             ) : currentView === 'agendamentos' ? (
               <AgendamentoScreen />
             ) : currentView === 'settings' ? (
-              <SettingsScreen />
+              <SettingsScreen /> 
             ) : (
               <UBSConsultation />
             )}
