@@ -12,6 +12,8 @@ import PublicRoute from './shared/components/PublicRoute';
 import { Toaster } from 'react-hot-toast';
 import { requestForToken, onMessageListener } from './firebase';
 import useAuthStore from './shared/store/auth-store';
+import ImportScreen from './features/importacao/ImportScreen';
+import AppointmentRequestScreen from './shared/components/AppointmentRequestScreen';
 
 // ----- IMPORT CORRIGIDO -----
 // 1. A ÚNICA PÁGINA que precisamos importar é a InicialPage
@@ -84,6 +86,8 @@ const App = () => {
               ...
             </Route>
             */}
+            <Route path="/requestscreen" element={< AppointmentRequestScreen/>} />
+            <Route path="/importacao" element={<ImportScreen />} />
           </Routes>
         </PrivateRoute>}
       </HashRouter>
