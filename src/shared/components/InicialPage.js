@@ -17,15 +17,25 @@ const locations = [
   { lat: 34.062235, lng: -118.243683, name: 'Location C' },
 ];
 
-// --- Componente da Tela de Configurações (COM MODAL DE SAIR) ---
+// --- Componente da Tela de Configurações (ATUALIZADO COM DELETAR CONTA) ---
 const SettingsScreen = () => {
   const { info } = useUserStore();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+  
+  // Estados para controlar a visibilidade dos modais
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // NOVO
 
-  // Função para realizar o Logout (Recarrega a página)
+  // Função para realizar o Logout
   const handleConfirmLogout = () => {
+    window.location.reload();
+  };
+
+  // Função para Deletar a Conta (Simulação)
+  const handleConfirmDelete = () => {
+    // AQUI: Adicione a chamada real para sua API ou Firebase para deletar o usuário
+    alert("Sua conta foi excluída permanentemente.");
     window.location.reload(); 
   };
 
@@ -46,8 +56,8 @@ const SettingsScreen = () => {
 
   return (
     <>
-      {/* Conteúdo Principal com efeito de Blur quando o modal abre */}
-      <div className={`flex-1 bg-gray-50 p-4 pb-24 overflow-y-auto h-full rounded-xl ${showLogoutModal ? 'blur-sm pointer-events-none' : ''}`}>
+      {/* Conteúdo Principal com efeito de Blur se qualquer modal estiver aberto */}
+      <div className={`flex-1 bg-gray-50 p-4 pb-24 overflow-y-auto h-full rounded-xl ${showLogoutModal || showDeleteModal ? 'blur-sm pointer-events-none' : ''}`}>
         <div className="mb-6 text-center">
           <h2 className="text-xl font-semibold text-gray-800">Configurações</h2>
         </div>
@@ -70,11 +80,10 @@ const SettingsScreen = () => {
             <h3 className="font-bold text-gray-800">{info.nome || "Usuário"}</h3>
             <p className="text-sm text-gray-500">{info.email || "email@exemplo.com"}</p>
           </div>
-          <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition">
-          </button>
         </div>
 
         <div className="space-y-4">
+          {/* Item: Idioma */}
           <div className="flex items-center justify-between p-3 hover:bg-gray-100 rounded-xl cursor-pointer transition">
             <div className="flex items-center space-x-4">
               <div className="p-2 bg-gray-100 rounded-full">
@@ -92,6 +101,7 @@ const SettingsScreen = () => {
             </div>
           </div>
 
+          {/* Item: Notificações */}
           <div className="flex items-center justify-between p-3 hover:bg-gray-100 rounded-xl cursor-pointer transition">
             <div className="flex items-center space-x-4">
               <div className="p-2 bg-gray-100 rounded-full">
@@ -104,6 +114,7 @@ const SettingsScreen = () => {
             <ToggleSwitch enabled={notificationsEnabled} onToggle={() => setNotificationsEnabled(!notificationsEnabled)} />
           </div>
 
+          {/* Item: Modo Escuro */}
           <div className="flex items-center justify-between p-3 hover:bg-gray-100 rounded-xl cursor-pointer transition">
             <div className="flex items-center space-x-4">
               <div className="p-2 bg-gray-100 rounded-full">
@@ -116,6 +127,7 @@ const SettingsScreen = () => {
             <ToggleSwitch enabled={darkModeEnabled} onToggle={() => setDarkModeEnabled(!darkModeEnabled)} />
           </div>
 
+          {/* Item: Ajuda */}
           <div className="flex items-center justify-between p-3 hover:bg-gray-100 rounded-xl cursor-pointer transition">
             <div className="flex items-center space-x-4">
               <div className="p-2 bg-gray-100 rounded-full">
@@ -130,6 +142,7 @@ const SettingsScreen = () => {
             </svg>
           </div>
 
+          {/* Botão: Sair da conta */}
           <div 
             onClick={() => setShowLogoutModal(true)}
             className="flex items-center justify-between p-3 hover:bg-red-50 rounded-xl cursor-pointer transition group"
@@ -143,6 +156,21 @@ const SettingsScreen = () => {
               <span className="font-medium text-red-500">Sair da conta</span>
             </div>
           </div>
+
+          {/* NOVO Botão: Deletar conta (ADICIONADO) */}
+          <div 
+            onClick={() => setShowDeleteModal(true)}
+            className="flex items-center justify-between p-3 hover:bg-red-100 rounded-xl cursor-pointer transition group mt-2"
+          >
+            <div className="flex items-center space-x-4">
+              <div className="p-2 bg-red-200 rounded-full group-hover:bg-red-300 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </div>
+              <span className="font-bold text-red-700">Deletar conta</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -153,19 +181,16 @@ const SettingsScreen = () => {
             className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity" 
             onClick={() => setShowLogoutModal(false)}
           ></div>
-          
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden z-10 transform transition-all scale-100 p-6 text-center">
             <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
             </div>
-            
             <h3 className="text-xl font-bold text-gray-900 mb-2">Sair da conta</h3>
             <p className="text-gray-500 text-sm mb-8 leading-relaxed">
               Tem certeza que deseja sair da sua conta? Você precisará fazer login novamente para acessar.
             </p>
-            
             <div className="flex gap-3">
               <button 
                 onClick={() => setShowLogoutModal(false)} 
@@ -178,6 +203,47 @@ const SettingsScreen = () => {
                 className="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition shadow-lg shadow-red-200 focus:ring-2 focus:ring-red-500"
               >
                 Sim, sair
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- NOVO MODAL DE DELETAR CONTA (ADICIONADO) --- */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm transition-opacity" 
+            onClick={() => setShowDeleteModal(false)}
+          ></div>
+          
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden z-10 transform transition-all scale-100 p-6 text-center border-t-4 border-red-600">
+            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </div>
+            
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Excluir Conta</h3>
+            <p className="text-gray-500 text-sm mb-4 leading-relaxed">
+              Tem certeza absoluta? Esta ação é <span className="font-bold text-red-600">irreversível</span>.
+            </p>
+            <p className="text-gray-400 text-xs mb-8">
+              Todos os seus dados, agendamentos e histórico serão apagados permanentemente.
+            </p>
+            
+            <div className="flex flex-col gap-3">
+              <button 
+                onClick={handleConfirmDelete} 
+                className="w-full px-4 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition shadow-lg shadow-red-200 focus:ring-2 focus:ring-red-500 uppercase tracking-wide"
+              >
+                Sim, excluir minha conta
+              </button>
+              <button 
+                onClick={() => setShowDeleteModal(false)} 
+                className="w-full px-4 py-3 bg-white text-gray-700 border border-gray-200 rounded-xl font-semibold hover:bg-gray-50 transition focus:ring-2 focus:ring-gray-200"
+              >
+                Cancelar
               </button>
             </div>
           </div>
