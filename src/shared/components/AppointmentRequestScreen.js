@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 
 // Importando o serviço criado acima
-import AppointmentService from '../services/appointment.service'; 
+import AppointmentService from '../../features/splash/services/appointmentService';
 
 // Componente de Status Bar (Opcional)
 const StatusBar = () => (
