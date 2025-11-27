@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { APIProvider, Map, Marker, Pin } from '@vis.gl/react-google-maps';
 import useUserStore from '../store/user-store';
 import MedicamentoService from '../../features/splash/services/MedicamentoService';
@@ -10,31 +10,424 @@ const PRIMARY_COLOR_CLASSES = 'bg-teal-500 hover:bg-teal-600 focus:ring-teal-500
 const TEXT_COLOR_CLASSES = 'text-balck';
 const FOCUS_BORDER_CLASSES = 'focus:ring-teal-500';
 
-// --- DEFINIÇÃO DE LOCAIS (Mantido no topo para evitar erros) ---
+// --- DEFINIÇÃO DE LOCAIS ---
 const locations = [
   { lat: 34.052235, lng: -118.243683, name: 'Location A' },
   { lat: 34.052235, lng: -118.253683, name: 'Location B' },
   { lat: 34.062235, lng: -118.243683, name: 'Location C' },
 ];
 
-// --- Componente da Tela de Configurações (ATUALIZADO COM DELETAR CONTA) ---
+// --- DADOS MOCK PARA IMPORT SCREEN ---
+const MOCK_DATA_UBS = [
+  { unidade: 'UBS Jardim das Flores', bairro: 'Jd. Flores', telefone: '(11) 9999-8888', horario: '07:00 às 17:00' },
+  { unidade: 'UBS Centro', bairro: 'Centro', telefone: '(11) 3333-2222', horario: '08:00 às 18:00' },
+  { unidade: 'UBS Vila Nova', bairro: 'Vila Nova', telefone: '(11) 4444-5555', horario: '07:00 às 19:00' },
+  { unidade: 'UBS Parque Industrial', bairro: 'Industrial', telefone: '(11) 7777-6666', horario: '07:00 às 17:00' },
+];
+
+const MOCK_DATA_ADMINS = [
+  { nome: 'João da Silva', cargo: 'Gerente', email: 'joao@saude.gov.br', status: 'Ativo' },
+  { nome: 'Maria Oliveira', cargo: 'Coord.', email: 'maria@saude.gov.br', status: 'Ativo' },
+  { nome: 'Carlos Souza', cargo: 'Admin', email: 'carlos@saude.gov.br', status: 'Férias' },
+];
+
+// --- SERVICES ---
+
+const AppointmentService = {
+  getAppointmentRequest: async (id) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          id: 1,
+          patientName: 'Maria Silva',
+          date: '20/11/2023',
+          time: '14:30',
+          reason: 'Retorno de consulta cardiológica',
+          status: 'pending'
+        });
+      }, 800);
+    });
+  },
+  approveRequest: async (id) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log(`Pedido ${id} aprovado.`);
+        resolve({ success: true, status: 'approved' });
+      }, 1000);
+    });
+  },
+  denyRequest: async (id) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log(`Pedido ${id} negado.`);
+        resolve({ success: true, status: 'denied' });
+      }, 1000);
+    });
+  }
+};
+
+// --- Componente CSVUploader (Auxiliar da ImportScreen) ---
+function CSVUploader() {
+  const [fileName, setFileName] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) setFileName(file.name);
+  };
+
+  return (
+    <div 
+      onClick={() => fileInputRef.current.click()}
+      className={`
+        relative group cursor-pointer 
+        flex flex-col items-center justify-center 
+        w-full h-40 rounded-2xl 
+        border-2 border-dashed transition-all duration-300 bg-white
+        ${fileName 
+          ? 'border-[#1ABC9C] bg-teal-50' 
+          : 'border-gray-400 hover:border-[#1ABC9C] hover:bg-gray-50'}
+      `}
+    >
+      <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".csv" className="hidden" />
+      
+      {fileName ? (
+        <>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#1ABC9C] mb-2">
+             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+             <polyline points="14 2 14 8 20 8"></polyline>
+             <path d="M8 13h8"></path>
+             <path d="M8 17h8"></path>
+             <path d="M10 9h4"></path>
+          </svg>
+          
+          <p className="text-[#1ABC9C] font-semibold text-center px-4 truncate w-full text-sm">{fileName}</p>
+          
+          <div className="flex items-center gap-1 text-xs text-gray-500 mt-2 bg-white px-2 py-1 rounded-full shadow-sm border border-gray-100">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-[#1ABC9C]">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <span className="font-medium text-[#1ABC9C]">Pronto para enviar</span>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="bg-teal-50 p-4 rounded-full mb-3 group-hover:scale-110 transition-transform">
+             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#1ABC9C]">
+               <circle cx="12" cy="12" r="10"></circle>
+               <line x1="2" y1="12" x2="22" y2="12"></line>
+               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+             </svg>
+          </div>
+          <p className="text-gray-500 font-medium text-lg">Import CSV</p>
+          <p className="text-gray-400 text-xs mt-1">Clique ou arraste o arquivo aqui</p>
+        </>
+      )}
+    </div>
+  );
+}
+
+// --- Componente ImportScreen (ADICIONADO E ADAPTADO) ---
+const ImportScreen = ({ onBack }) => {
+  const [currentView, setCurrentView] = useState('ubs'); 
+  
+  const config = currentView === 'ubs' 
+    ? { 
+        title: 'Import UBSs', 
+        subtitle: 'UBSs', 
+        buttonText: 'Carregar UBSs', 
+        data: MOCK_DATA_UBS, 
+        columns: ['Unidade', 'Bairro', 'Telefone', 'Horário'] 
+      }
+    : { 
+        title: 'Import Admins UBSs', 
+        subtitle: 'Admins', 
+        buttonText: 'Carregar Admin', 
+        data: MOCK_DATA_ADMINS, 
+        columns: ['Nome', 'Cargo', 'Email', 'Status'] 
+      };
+
+  return (
+    <div className="flex flex-col h-screen bg-gray-50 items-center w-full z-50 relative">
+      {/* --- HEADER --- */}
+      <div className="w-full bg-white shadow-sm px-4 py-4 relative flex items-center justify-center">
+        
+        <button 
+          onClick={onBack} 
+          className="absolute left-4 p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-600"
+          title="Voltar"
+        >
+           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+             <path d="M19 12H5M12 19l-7-7 7-7"/>
+           </svg>
+        </button>
+
+        <h1 className="text-xl font-bold text-gray-900 text-center">
+          {config.title}
+        </h1>
+      </div>
+
+      {/* --- CONTEÚDO PRINCIPAL --- */}
+      <div className="flex-1 flex flex-col px-6 overflow-hidden w-full max-w-2xl">
+        
+        {/* Botões de Troca de Tela */}
+        <div className="flex justify-center gap-3 py-4">
+            <button 
+              onClick={() => setCurrentView('ubs')} 
+              className={`text-sm font-medium px-4 py-1.5 rounded-full border transition-colors ${currentView === 'ubs' ? 'bg-teal-50 border-[#1ABC9C] text-[#1ABC9C]' : 'border-gray-300 text-gray-500 hover:bg-gray-100'}`}
+            >
+              UBSs
+            </button>
+            <button 
+              onClick={() => setCurrentView('admins')} 
+              className={`text-sm font-medium px-4 py-1.5 rounded-full border transition-colors ${currentView === 'admins' ? 'bg-teal-50 border-[#1ABC9C] text-[#1ABC9C]' : 'border-gray-300 text-gray-500 hover:bg-gray-100'}`}
+            >
+              Admins
+            </button>
+        </div>
+
+        {/* Área de Upload */}
+        <div className="flex-shrink-0 flex flex-col items-center justify-center py-2 w-full">
+          <h2 className="text-lg font-bold text-gray-800 mb-3 text-center w-full">{config.subtitle}</h2>
+          
+          <div className="w-full">
+            <CSVUploader />
+          </div>
+
+          <div className="mt-6 w-full max-w-md mx-auto">
+            <p className="text-sm font-bold text-gray-700 mb-2 text-center">Ação</p>
+            <button className="w-full bg-[#1ABC9C] hover:bg-[#16a085] transition-colors text-white font-semibold text-lg py-3 rounded-xl shadow-md active:scale-95 transform duration-150 flex justify-center items-center gap-2">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              {config.buttonText}
+            </button>
+          </div>
+        </div>
+
+        <div className="h-px bg-gray-200 w-full my-6"></div>
+
+        {/* Tabela de Dados */}
+        <div className="flex-1 flex flex-col overflow-hidden pb-6 w-full">
+          <h3 className="text-lg font-bold text-gray-800 mb-3 text-center">{config.subtitle} Tabela</h3>
+          
+          <div className="flex-1 border border-gray-300 rounded-lg bg-white overflow-auto scrollbar-thin scrollbar-thumb-gray-300 shadow-sm">
+            <table className="w-full text-left text-sm whitespace-nowrap">
+              <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
+                <tr>
+                  {config.columns.map((col, idx) => (
+                    <th key={idx} className="px-4 py-3 border-b border-gray-200 font-bold text-center">{col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {config.data.map((item, idx) => (
+                  <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                    {Object.values(item).map((val, vIdx) => (
+                      <td key={vIdx} className="px-4 py-3 text-gray-600 text-center">{val}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- AppointmentRequestScreen ---
+const AppointmentRequestScreen = ({ onBack }) => {
+  const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
+  const [data, setData] = useState(null);
+  const [isInfoExpanded, setIsInfoExpanded] = useState(false);
+  const [actionResult, setActionResult] = useState(null); 
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const result = await AppointmentService.getAppointmentRequest(123);
+      setData(result);
+    } catch (error) {
+      console.error("Erro ao carregar dados", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAction = async (type) => {
+    if (!data) return;
+    setProcessing(true);
+    try {
+      if (type === 'approve') {
+        await AppointmentService.approveRequest(data.id);
+        setActionResult('approved');
+      } else {
+        await AppointmentService.denyRequest(data.id);
+        setActionResult('denied');
+      }
+    } catch (error) {
+      alert("Erro ao processar solicitação");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const primaryColorClass = "bg-[#1ABC9C]";
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1ABC9C]"></div>
+      </div>
+    );
+  }
+
+  if (actionResult) {
+    return (
+      <div className="flex flex-col h-screen bg-white font-sans z-50 relative">
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          <div className={`p-4 rounded-full mb-4 ${actionResult === 'approved' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+            {actionResult === 'approved' ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            )}
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            {actionResult === 'approved' ? 'Agendamento Permitido!' : 'Agendamento Negado'}
+          </h2>
+          <p className="text-gray-500 mb-8">A ação foi registrada no sistema com sucesso.</p>
+          
+          <button 
+            onClick={() => { setActionResult(null); loadData(); }}
+            className="w-full py-4 rounded-xl text-white font-bold shadow-lg bg-[#1ABC9C] active:scale-95 transition-transform"
+          >
+            Voltar para Lista
+          </button>
+          <button 
+            onClick={onBack}
+            className="w-full py-4 mt-2 text-gray-500 font-semibold"
+          >
+            Sair
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col h-screen bg-gray-50 font-sans w-full mx-auto shadow-2xl overflow-hidden z-50 relative">
+      <header className="bg-white px-4 py-4 flex items-center gap-3 sticky top-0 z-10 shadow-sm">
+        <button onClick={onBack} className="p-1 hover:bg-gray-100 rounded-full transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <h1 className="text-lg font-bold text-gray-900">Pedidos de agendamento</h1>
+      </header>
+
+      <main className="flex-1 p-5 flex flex-col gap-6 overflow-y-auto bg-white">
+        <section>
+          <h2 className="text-sm font-bold text-black mb-3">Pedidos</h2>
+          
+          <div className="flex flex-col gap-2">
+            <button 
+              onClick={() => setIsInfoExpanded(!isInfoExpanded)}
+              className={`w-full ${primaryColorClass} text-white px-5 py-4 rounded-xl flex justify-between items-center shadow-sm active:opacity-90 transition-all`}
+            >
+              <span className="font-medium text-[15px]">Pedidos e Informações do paciente</span>
+              {isInfoExpanded ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              )}
+            </button>
+
+            {isInfoExpanded && data && (
+              <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm animate-fadeIn mt-1 space-y-4">
+                <div className="flex items-center gap-3 pb-3 border-b border-gray-50">
+                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400 uppercase font-semibold">Paciente</p>
+                    <p className="text-gray-800 font-medium">{data.patientName}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 pb-3 border-b border-gray-50">
+                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400 uppercase font-semibold">Data Sugerida</p>
+                    <p className="text-gray-800 font-medium">{data.date} às {data.time}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400 uppercase font-semibold">Motivo</p>
+                    <p className="text-gray-600 text-sm leading-relaxed">{data.reason}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="mt-2">
+          <h2 className="text-sm font-bold text-black mb-3">Permitir</h2>
+          
+          <div className="flex flex-col gap-4">
+            <button 
+              onClick={() => handleAction('approve')}
+              disabled={processing}
+              className={`w-full ${primaryColorClass} text-white font-medium text-[15px] py-4 rounded-xl shadow-sm hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 flex justify-center items-center gap-2`}
+            >
+              {processing ? 'Processando...' : 'Permitir'}
+            </button>
+
+            <button 
+              onClick={() => handleAction('deny')}
+              disabled={processing}
+              className={`w-full ${primaryColorClass} text-white font-medium text-[15px] py-4 rounded-xl shadow-sm hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50`}
+            >
+              Negar
+            </button>
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+};
+
+// --- Tela de Configurações ---
 const SettingsScreen = () => {
   const { info } = useUserStore();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
-  
-  // Estados para controlar a visibilidade dos modais
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false); // NOVO
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // Função para realizar o Logout
   const handleConfirmLogout = () => {
     window.location.reload();
   };
 
-  // Função para Deletar a Conta (Simulação)
   const handleConfirmDelete = () => {
-    // AQUI: Adicione a chamada real para sua API ou Firebase para deletar o usuário
     alert("Sua conta foi excluída permanentemente.");
     window.location.reload(); 
   };
@@ -56,7 +449,6 @@ const SettingsScreen = () => {
 
   return (
     <>
-      {/* Conteúdo Principal com efeito de Blur se qualquer modal estiver aberto */}
       <div className={`flex-1 bg-gray-50 p-4 pb-24 overflow-y-auto h-full rounded-xl ${showLogoutModal || showDeleteModal ? 'blur-sm pointer-events-none' : ''}`}>
         <div className="mb-6 text-center">
           <h2 className="text-xl font-semibold text-gray-800">Configurações</h2>
@@ -83,7 +475,6 @@ const SettingsScreen = () => {
         </div>
 
         <div className="space-y-4">
-          {/* Item: Idioma */}
           <div className="flex items-center justify-between p-3 hover:bg-gray-100 rounded-xl cursor-pointer transition">
             <div className="flex items-center space-x-4">
               <div className="p-2 bg-gray-100 rounded-full">
@@ -101,7 +492,6 @@ const SettingsScreen = () => {
             </div>
           </div>
 
-          {/* Item: Notificações */}
           <div className="flex items-center justify-between p-3 hover:bg-gray-100 rounded-xl cursor-pointer transition">
             <div className="flex items-center space-x-4">
               <div className="p-2 bg-gray-100 rounded-full">
@@ -114,7 +504,6 @@ const SettingsScreen = () => {
             <ToggleSwitch enabled={notificationsEnabled} onToggle={() => setNotificationsEnabled(!notificationsEnabled)} />
           </div>
 
-          {/* Item: Modo Escuro */}
           <div className="flex items-center justify-between p-3 hover:bg-gray-100 rounded-xl cursor-pointer transition">
             <div className="flex items-center space-x-4">
               <div className="p-2 bg-gray-100 rounded-full">
@@ -127,7 +516,6 @@ const SettingsScreen = () => {
             <ToggleSwitch enabled={darkModeEnabled} onToggle={() => setDarkModeEnabled(!darkModeEnabled)} />
           </div>
 
-          {/* Item: Ajuda */}
           <div className="flex items-center justify-between p-3 hover:bg-gray-100 rounded-xl cursor-pointer transition">
             <div className="flex items-center space-x-4">
               <div className="p-2 bg-gray-100 rounded-full">
@@ -142,7 +530,6 @@ const SettingsScreen = () => {
             </svg>
           </div>
 
-          {/* Botão: Sair da conta */}
           <div 
             onClick={() => setShowLogoutModal(true)}
             className="flex items-center justify-between p-3 hover:bg-red-50 rounded-xl cursor-pointer transition group"
@@ -157,7 +544,6 @@ const SettingsScreen = () => {
             </div>
           </div>
 
-          {/* NOVO Botão: Deletar conta (ADICIONADO) */}
           <div 
             onClick={() => setShowDeleteModal(true)}
             className="flex items-center justify-between p-3 hover:bg-red-100 rounded-xl cursor-pointer transition group mt-2"
@@ -174,7 +560,6 @@ const SettingsScreen = () => {
         </div>
       </div>
 
-      {/* --- MODAL DE LOGOUT --- */}
       {showLogoutModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div 
@@ -209,7 +594,6 @@ const SettingsScreen = () => {
         </div>
       )}
 
-      {/* --- NOVO MODAL DE DELETAR CONTA (ADICIONADO) --- */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div 
@@ -253,7 +637,7 @@ const SettingsScreen = () => {
   );
 };
 
-// --- Demais Telas (Agendamento, Medicamentos, etc) ---
+// --- Demais Telas ---
 
 const AgendamentoScreen = () => {
   const [vacinas, setVacinas] = useState([]);
@@ -264,7 +648,6 @@ const AgendamentoScreen = () => {
   const [faixaEtaria, setFaixaEtaria] = useState('');
   
   const diasDisponiveis = [15, 1, 22, 23, 29, 30];
-  
   useEffect(() => {
     VacinaService.vacinas()
       .then(data => setVacinas(data))
@@ -272,7 +655,6 @@ const AgendamentoScreen = () => {
 
     setUbsList(locations.map(l => l.name));
   }, []);
-
   return (
     <div
       className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
@@ -401,7 +783,7 @@ const MedicamentosConsultation = () => {
         <h2 className={`text-3xl font-extrabold ${TEXT_COLOR_CLASSES} mb-8 text-center`}>
           💊 Consulta de Medicamentos
         </h2>
-        
+     
         <div className="relative mb-6">
           <input
             type="text"
@@ -431,8 +813,7 @@ const MedicamentosConsultation = () => {
           )}
         </div>
 
-        {selectedMedicamentos ?
-        (
+        {selectedMedicamentos ? (
           <div className="p-6 space-y-4 transition-all duration-500 bg-teal-50 border-l-4 border-teal-500 rounded-lg shadow-md">
             <h3 className={`text-2xl font-bold ${TEXT_COLOR_CLASSES}`}>
               {selectedMedicamentos.nome} 
@@ -454,8 +835,7 @@ const MedicamentosConsultation = () => {
             <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-8 mx-auto mb-2 ${TEXT_COLOR_CLASSES}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
             </svg>
-            {searchTerm && filteredMedicamentos.length === 0 ?
-            (
+            {searchTerm && filteredMedicamentos.length === 0 ? (
               "Nenhum medicamento encontrado. Tente um nome diferente."
             ) : (
               "Pesquise por um medicamento para ver os detalhes."
@@ -523,8 +903,7 @@ const VaccineConsultation = () => {
           )}
         </div>
 
-        {selectedVaccine ?
-        (
+        {selectedVaccine ? (
           <div className="p-6 space-y-4 transition-all duration-500 bg-teal-50 border-l-4 border-teal-500 rounded-lg shadow-md">
             <h3 className={`text-2xl font-bold ${TEXT_COLOR_CLASSES} border-b border-teal-200 pb-2`}>
               {selectedVaccine.nomeVacina}
@@ -556,8 +935,7 @@ const VaccineConsultation = () => {
             <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-8 mx-auto mb-2 ${TEXT_COLOR_CLASSES}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944c6.287 0 11.44 4.095 12 9.056-1.42 6.008-6.195 10.902-12 11.056C5.44 24.04 0.287 19.945 0 14.944A12.003 12.003 0 0112 1.944v0z" />
             </svg>
-            {searchTerm && filteredVaccines.length === 0 ?
-            "Nenhuma vacina encontrada. Tente um nome diferente." : "Pesquise por uma vacina para ver os detalhes."}
+            {searchTerm && filteredVaccines.length === 0 ? "Nenhuma vacina encontrada. Tente um nome diferente." : "Pesquise por uma vacina para ver os detalhes."}
           </div>
         )}
       </div>
@@ -620,7 +998,7 @@ const UBSConsultation = () => {
 };
 
 // --- Tela Principal (Home + Navegação) ---
-const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exerciseReminder, meditationReminder, skinCareReminder, onVaccinesClick, onUBSClick, onToggleSidebar, onMedicamentosClick, onAgendamentosClick, onSettingsClick }) => {
+const HomeScreen = ({ userName, userProfilePic, vaccineBanner, exerciseReminder, meditationReminder, skinCareReminder, onVaccinesClick, onUBSClick, onToggleSidebar, onMedicamentosClick, onAgendamentosClick, onSettingsClick, onRequestAgendamentosClick, onImportClick }) => {
   return (
     <div className="bg-gray-100 min-h-screen font-sans">
       <header className="flex items-center justify-between p-4 bg-white shadow-sm">
@@ -647,7 +1025,7 @@ const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exercis
 
       <main className="p-4 space-y-6">
         <div>
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Comunicados</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Início</h2>
           <div className="flex space-x-2 mb-4 overflow-x-auto">
             <button className="bg-teal-500 text-white px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap">
               Comunicados
@@ -663,6 +1041,13 @@ const HomeScreen = ({ userName, userProfilePic, vaccineBanner, yogaCard, exercis
             </button>
             <button onClick={onAgendamentosClick} className="bg-white text-gray-600 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap">
               Agendamentos
+            </button>
+            <button onClick={onRequestAgendamentosClick} className="bg-white text-gray-600 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap">
+              Aceitar agendamentos
+            </button>
+            {/* NOVO BOTÃO DE IMPORTAR */}
+            <button onClick={onImportClick} className="bg-white text-gray-600 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap">
+              Importar Dados
             </button>
           </div>
           <div className="flex gap-4 mb-4">
@@ -730,7 +1115,6 @@ const HomeApp = () => {
   const handleBackToHome = () => {
     setCurrentView('home');
   };
-
   return (
     <div className="relative overflow-hidden">
       {/* Sidebar - desliza da esquerda */}
@@ -799,7 +1183,13 @@ const HomeApp = () => {
             onToggleSidebar={toggleSidebar}
             onAgendamentosClick={() => setCurrentView('agendamentos')}
             onSettingsClick={() => setCurrentView('settings')}
+            onRequestAgendamentosClick={() => setCurrentView('solicitacoes')}
+            onImportClick={() => setCurrentView('import')}
           />
+        ) : currentView === 'solicitacoes' ? (
+          <AppointmentRequestScreen onBack={handleBackToHome} />
+        ) : currentView === 'import' ? (
+          <ImportScreen onBack={handleBackToHome} />
         ) : (
           <div>
             <header className="flex items-center p-4 bg-white shadow-sm">
@@ -828,7 +1218,7 @@ const HomeApp = () => {
                 </div>
               </div>
             </header>
-            
+             
             {currentView === 'vacinas' ? (
               <VaccineConsultation />
             ) : currentView === 'medicamentos' ? (
