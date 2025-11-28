@@ -5,6 +5,7 @@ import MedicamentoService from '../../features/splash/services/MedicamentoServic
 import VacinaService from '../../features/splash/services/VacinaService';
 import FundoLogin from '../../../src/features/splash/assets/Fundologin.png'
 import logoEmpresa from '../../../src/features/splash/assets/logoEmpresa.png'
+import AgendamentoService from '../../features/splash/services/AgendamentoService';
 
 const PRIMARY_COLOR_CLASSES = 'bg-teal-500 hover:bg-teal-600 focus:ring-teal-500';
 const TEXT_COLOR_CLASSES = 'text-balck';
@@ -475,23 +476,7 @@ const SettingsScreen = () => {
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-3 hover:bg-gray-100 rounded-xl cursor-pointer transition">
-            <div className="flex items-center space-x-4">
-              <div className="p-2 bg-gray-100 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <span className="font-medium text-gray-700">Idioma</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-500">Português</span>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </div>
-
+          {/* Item: Notificações */}
           <div className="flex items-center justify-between p-3 hover:bg-gray-100 rounded-xl cursor-pointer transition">
             <div className="flex items-center space-x-4">
               <div className="p-2 bg-gray-100 rounded-full">
@@ -504,32 +489,7 @@ const SettingsScreen = () => {
             <ToggleSwitch enabled={notificationsEnabled} onToggle={() => setNotificationsEnabled(!notificationsEnabled)} />
           </div>
 
-          <div className="flex items-center justify-between p-3 hover:bg-gray-100 rounded-xl cursor-pointer transition">
-            <div className="flex items-center space-x-4">
-              <div className="p-2 bg-gray-100 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-              </div>
-              <span className="font-medium text-gray-700">Modo Escuro</span>
-            </div>
-            <ToggleSwitch enabled={darkModeEnabled} onToggle={() => setDarkModeEnabled(!darkModeEnabled)} />
-          </div>
-
-          <div className="flex items-center justify-between p-3 hover:bg-gray-100 rounded-xl cursor-pointer transition">
-            <div className="flex items-center space-x-4">
-              <div className="p-2 bg-gray-100 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <span className="font-medium text-gray-700">Ajuda</span>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
-
+          {/* Botão: Sair da conta */}
           <div 
             onClick={() => setShowLogoutModal(true)}
             className="flex items-center justify-between p-3 hover:bg-red-50 rounded-xl cursor-pointer transition group"
@@ -637,8 +597,8 @@ const SettingsScreen = () => {
   );
 };
 
-// --- Demais Telas ---
-
+// --- Demais Telas (Agendamento, Medicamentos, etc) ---
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const AgendamentoScreen = () => {
   const [vacinas, setVacinas] = useState([]);
   const [ubsList, setUbsList] = useState([]);
@@ -646,6 +606,17 @@ const AgendamentoScreen = () => {
   const [selectedUBS, setSelectedUBS] = useState('');
   const [nomePaciente, setNomePaciente] = useState('');
   const [faixaEtaria, setFaixaEtaria] = useState('');
+  const [selectedDay, setSelectedDay] = useState(null);
+
+  const agendar = async (e) =>{
+    e.preventDefault()
+    await AgendamentoService.agendar({
+      tipoDePaciente: faixaEtaria.toUpperCase(), 
+      ubsId: selectedUBS.id,
+      atendimentoId:"",
+      horario: selectedDay
+    })
+  }
   
   const diasDisponiveis = [15, 1, 22, 23, 29, 30];
   useEffect(() => {
@@ -656,6 +627,34 @@ const AgendamentoScreen = () => {
     setUbsList(locations.map(l => l.name));
   }, []);
   return (
+  const diasDisponiveis = [1, 5, 6, 8, 9, 12, 13,16 ,17, 19, 20, 22, 23, 26, 27];
+
+  const handleDayClick = (day) => {
+    // Apenas permite clicar se o dia estiver na lista de dias disponíveis
+    if (diasDisponiveis.includes(day)) {
+        // Se o dia clicado já estiver selecionado, desseleciona (null).
+        // Caso contrário, seleciona o novo dia.
+        setSelectedDay(day === selectedDay ? null : day);
+    }
+  };
+
+  useEffect(() => {
+    VacinaService.vacinas()
+      .then(data => setVacinas(data))
+      .catch(console.error); // Alterado para console.error para melhor rastreio
+
+    // Garante que locations foi passado
+    if (locations) {
+      setUbsList(locations.map(l => l.name));
+    }
+  }, [VacinaService, locations]);
+
+  const faixas = [
+    { label: 'Adulto', value: 'Adulto', colorClass: 'bg-gray-200' },
+    { label: 'Idoso', value: 'Idoso', colorClass: 'bg-gray-200' },
+    { label: 'Criança', value: 'Criança', colorClass: 'bg-gray-200' }, 
+];
+return (
     <div
       className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
       style={{
@@ -672,6 +671,8 @@ const AgendamentoScreen = () => {
           Importante: você será notificado se o seu agendamento for aceito
         </p>
 
+        {/* ... (Campos de Tipo da vacina e Locais disponíveis mantidos) ... */}
+        
         <label className="block text-gray-700 text-sm mb-1">Tipo da vacina</label>
         <input
           type="text"
@@ -698,16 +699,36 @@ const AgendamentoScreen = () => {
             <option key={u} value={u}>{u}</option>
           ))}
         </select>
-
+        
+        {/* Lógica de renderização dos dias atualizada */}
         <label className="block text-gray-700 text-sm mb-2">Dias para o agendamento</label>
         <div className="grid grid-cols-7 gap-2 mb-6 text-center">
           {Array.from({ length: 30 }, (_, i) => i + 1).map(day => {
             const isDisponivel = diasDisponiveis.includes(day);
-            const bg = isDisponivel ? "bg-teal-300" : "bg-gray-200";
+            const isSelected = day === selectedDay; // Verifica se este dia foi selecionado
+            
+            // Lógica de Classes para estilização
+            let bg = "bg-gray-200 text-gray-400"; // Padrão (Fechado/Indisponível)
+            let cursor = "cursor-not-allowed";
+            let hover = "";
+            let ring = "";
+
+            if (isDisponivel) {
+                cursor = "cursor-pointer"; // Dia clicável
+                if (isSelected) {
+                    bg = "bg-teal-600 text-white"; // Selecionado
+                    ring = "ring-2 ring-teal-500 ring-offset-2"; // Anel de destaque
+                } else {
+                    bg = "bg-teal-300 text-gray-800"; // Disponível, não selecionado
+                    hover = "hover:bg-teal-400";
+                }
+            }
+            
             return (
               <div
                 key={day}
-                className={`p-2 rounded-full text-sm ${bg}`}
+                className={`p-2 rounded-full text-sm font-medium transition-all ${bg} ${cursor} ${hover} ${ring}`}
+                onClick={() => handleDayClick(day)} // Adiciona o evento de clique
               >
                 {day}
               </div>
@@ -715,21 +736,62 @@ const AgendamentoScreen = () => {
           })}
         </div>
 
+        {/* Exibe qual dia foi selecionado (Opcional, mas útil para debug/visualização) */}
+        {selectedDay && (
+            <p className="text-teal-600 font-semibold mb-4 text-center">Dia escolhido: **{selectedDay}**</p>
+        )}
+        
+        {/* A legenda foi mantida, mas as cores precisam ser ajustadas para refletir o código */}
         <div className="flex justify-around mb-6 text-xs">
           <div className="flex items-center space-x-1">
-            <span className="w-3 h-3 bg-gray-300 rounded-full"></span>
+            <span className="w-3 h-3 bg-gray-200 rounded-full"></span>
             <span>Fechado</span>
           </div>
           <div className="flex items-center space-x-1">
-            <span className="w-3 h-3 bg-teal-400 rounded-full"></span>
+            <span className="w-3 h-3 bg-teal-300 rounded-full"></span>
             <span>Disponível</span>
           </div>
           <div className="flex items-center space-x-1">
-            <span className="w-3 h-3 bg-black rounded-full"></span>
-            <span>Esgotado</span>
+            <span className="w-3 h-3 bg-teal-600 rounded-full"></span>
+            <span>Selecionado</span>
           </div>
         </div>
+                {/* A legenda foi mantida, mas as cores precisam ser ajustadas para refletir o código */}
+<label className="block text-gray-700 text-sm mb-2">Faixa etária do paciente</label>
+<div className="flex justify-around mb-6 text-xs">
+    {faixas.map(faixa => {
+        const isSelected = faixaEtaria === faixa.value;
+        const bgClass = isSelected ? 'bg-teal-600' : faixa.colorClass;
+        const ringClass = isSelected ? 'ring-2 ring-teal-600 ring-offset-2' : '';
 
+        return (
+            <label 
+                key={faixa.value}
+                className={`flex items-center space-x-2 p-2 rounded-lg cursor-pointer transition-all ${isSelected ? 'shadow-md' : 'hover:bg-gray-50'}`}
+            >
+                <input
+                    type="radio"
+                    name="faixaEtaria"
+                    value={faixa.value}
+                    checked={isSelected}
+                    onChange={e => setFaixaEtaria(e.target.value)}
+                    className="hidden" 
+                />
+                
+                <span 
+                    className={`w-3 h-3 rounded-full block ${bgClass} ${ringClass}`}
+                ></span>
+                
+                <span className={`text-sm font-medium ${isSelected ? 'text-teal-600 font-bold' : 'text-gray-700'}`}>
+                    {faixa.label}
+                </span>
+            </label>
+        );
+    })}
+</div>
+
+        {/* ... (Campos de Nome do paciente e Faixa etária mantidos) ... */}
+        
         <label className="block text-gray-700 text-sm mb-1">Nome do paciente</label>
         <input
           type="text"
@@ -748,8 +810,12 @@ const AgendamentoScreen = () => {
           className="w-full p-3 mb-4 border rounded-lg shadow-sm"
         />
 
-        <button className="w-full bg-teal-500 text-white p-3 rounded-lg font-semibold text-lg shadow hover:bg-teal-600">
-          Enviar Agendamento
+        <button onClick={agendar} 
+          className="w-full bg-teal-500 text-white p-3 rounded-lg font-semibold text-lg shadow hover:bg-teal-600 disabled:bg-gray-400"
+          // Exemplo: Desabilita se o dia não foi selecionado
+          disabled={!selectedDay} 
+        >
+          Enviar Agendamento 
         </button>
       </div>
     </div>
@@ -942,6 +1008,12 @@ const VaccineConsultation = () => {
     </div>
   );
 };
+
+const locations = [
+  { lat: 34.052235, lng: -118.243683, name: 'Location A' },
+  { lat: 34.052235, lng: -118.253683, name: 'Location B' },
+  { lat: 34.062235, lng: -118.243683, name: 'Location C' },
+];
 
 function MyMapComponent() {
   const mapId = "YOUR_MAP_ID";
@@ -1226,7 +1298,7 @@ const HomeApp = () => {
             ) : currentView === 'agendamentos' ? (
               <AgendamentoScreen />
             ) : currentView === 'settings' ? (
-              <SettingsScreen />
+              <SettingsScreen /> 
             ) : (
               <UBSConsultation />
             )}

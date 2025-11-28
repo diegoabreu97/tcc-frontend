@@ -12,7 +12,7 @@ const AgendamentoService = {
   async agendamentos() {
     try {
       // Usa a instância 'api' para fazer a chamada. A baseURL já está configurada.
-      const response = await api.get('/v1/api/agendas');
+      const response = await api.get('/agendas');
       return response.data;
     } catch (error) {
       console.error('Erro no me:', error.response || error);
@@ -21,6 +21,19 @@ const AgendamentoService = {
       throw new Error(error.response.data.message);
     }
   },
+    
+  async agendar(data) {
+    try {
+      // Usa a instância 'api' para fazer a chamada. A baseURL já está configurada.
+      const response = await api.post('/agendas', data);
+      return response.data;
+    } catch (error) {
+      console.error('Erro no me:', error.response || error);
+
+  
+      throw new Error(error.response.data.message);
+    }
+  }
 
 };
 
