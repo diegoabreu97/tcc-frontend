@@ -6,17 +6,16 @@ import VacinaService from '../../features/splash/services/VacinaService';
 import FundoLogin from '../../../src/features/splash/assets/Fundologin.png'
 import logoEmpresa from '../../../src/features/splash/assets/logoEmpresa.png'
 import AgendamentoService from '../../features/splash/services/AgendamentoService';
+import { ptBR } from 'date-fns/locale';
+
+import "react-datepicker/dist/react-datepicker.css";
+import DatePicker from 'react-datepicker';
+import UbsService from '../../features/splash/services/UbsService';
+import AtendimentoService from '../../features/splash/services/AtendimentoService';
 
 const PRIMARY_COLOR_CLASSES = 'bg-teal-500 hover:bg-teal-600 focus:ring-teal-500';
 const TEXT_COLOR_CLASSES = 'text-balck';
 const FOCUS_BORDER_CLASSES = 'focus:ring-teal-500';
-
-// --- DEFINIÇÃO DE LOCAIS ---
-const locations = [
-  { lat: 34.052235, lng: -118.243683, name: 'Location A' },
-  { lat: 34.052235, lng: -118.253683, name: 'Location B' },
-  { lat: 34.062235, lng: -118.243683, name: 'Location C' },
-];
 
 // --- DADOS MOCK PARA IMPORT SCREEN ---
 const MOCK_DATA_UBS = [
@@ -600,33 +599,44 @@ const SettingsScreen = () => {
 // --- Demais Telas (Agendamento, Medicamentos, etc) ---
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const AgendamentoScreen = () => {
+    const [startDate, setStartDate] = useState(new Date());
+
   const [vacinas, setVacinas] = useState([]);
+    const [atendimentos, setAtendimentos] = useState([]);
+
   const [ubsList, setUbsList] = useState([]);
   const [selectedVacina, setSelectedVacina] = useState('');
+  const [selectedAtendimento, setSelectedAtendimento] = useState('');
   const [selectedUBS, setSelectedUBS] = useState('');
   const [nomePaciente, setNomePaciente] = useState('');
   const [faixaEtaria, setFaixaEtaria] = useState('');
   const [selectedDay, setSelectedDay] = useState(null);
 
+  
+
   const agendar = async (e) =>{
     e.preventDefault()
     await AgendamentoService.agendar({
       tipoDePaciente: faixaEtaria.toUpperCase(), 
-      ubsId: selectedUBS.id,
-      atendimentoId:"",
-      horario: selectedDay
+      ubsId: selectedUBS, 
+      atendimentoId:selectedAtendimento,
+      horario: startDate
     })
   }
-  
-  const diasDisponiveis = [15, 1, 22, 23, 29, 30];
-  useEffect(() => {
-    VacinaService.vacinas()
-      .then(data => setVacinas(data))
-      .catch(console.log);
 
-    setUbsList(locations.map(l => l.name));
+    const [ubses, setubses] = useState([])
+
+
+  
+
+  useEffect(() => {
+    AtendimentoService.atendimentos()
+      .then(data => setAtendimentos(data))
+      .catch(console.log);
+UbsService.ubs().then(d => setubses(d)).catch(console.log)
+    setUbsList(ubses.map(l => l.nome));
   }, []);
-  return (
+
   const diasDisponiveis = [1, 5, 6, 8, 9, 12, 13,16 ,17, 19, 20, 22, 23, 26, 27];
 
   const handleDayClick = (day) => {
@@ -638,16 +648,7 @@ const AgendamentoScreen = () => {
     }
   };
 
-  useEffect(() => {
-    VacinaService.vacinas()
-      .then(data => setVacinas(data))
-      .catch(console.error); // Alterado para console.error para melhor rastreio
-
-    // Garante que locations foi passado
-    if (locations) {
-      setUbsList(locations.map(l => l.name));
-    }
-  }, [VacinaService, locations]);
+  
 
   const faixas = [
     { label: 'Adulto', value: 'Adulto', colorClass: 'bg-gray-200' },
@@ -674,19 +675,16 @@ return (
         {/* ... (Campos de Tipo da vacina e Locais disponíveis mantidos) ... */}
         
         <label className="block text-gray-700 text-sm mb-1">Tipo da vacina</label>
-        <input
-          type="text"
-          list="listaVacinas"
-          value={selectedVacina}
-          onChange={e => setSelectedVacina(e.target.value)}
-          placeholder="Digite aqui..."
-          className="w-full p-3 mb-4 border rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500"
-        />
-        <datalist id="listaVacinas">
-          {vacinas.map(v => (
-            <option key={v.nomeVacina} value={v.nomeVacina} />
+          <select
+          className="w-full p-3 mb-6 border rounded-lg shadow-sm bg-teal-500 text-white text-lg font-semibold"
+          value={selectedAtendimento.procedimento}
+          onChange={e => setSelectedAtendimento(e.target.value)}
+        >
+          {atendimentos.map(v => (
+            <option key={v.procedimento} value={v.id} >{v.procedimento}</option>
           ))}
-        </datalist>
+          </select>
+        
 
         <label className="block text-gray-700 text-sm mb-1">Locais disponíveis</label>
         <select
@@ -695,45 +693,16 @@ return (
           onChange={e => setSelectedUBS(e.target.value)}
         >
           <option value="">Selecione</option>
-        {ubsList.map(u => (
-            <option key={u} value={u}>{u}</option>
+        {ubses.map(u => (
+            <option key={u.idUbs} value={u.idUbs}>{u.nomeUbs}</option>
           ))}
         </select>
         
         {/* Lógica de renderização dos dias atualizada */}
         <label className="block text-gray-700 text-sm mb-2">Dias para o agendamento</label>
         <div className="grid grid-cols-7 gap-2 mb-6 text-center">
-          {Array.from({ length: 30 }, (_, i) => i + 1).map(day => {
-            const isDisponivel = diasDisponiveis.includes(day);
-            const isSelected = day === selectedDay; // Verifica se este dia foi selecionado
-            
-            // Lógica de Classes para estilização
-            let bg = "bg-gray-200 text-gray-400"; // Padrão (Fechado/Indisponível)
-            let cursor = "cursor-not-allowed";
-            let hover = "";
-            let ring = "";
-
-            if (isDisponivel) {
-                cursor = "cursor-pointer"; // Dia clicável
-                if (isSelected) {
-                    bg = "bg-teal-600 text-white"; // Selecionado
-                    ring = "ring-2 ring-teal-500 ring-offset-2"; // Anel de destaque
-                } else {
-                    bg = "bg-teal-300 text-gray-800"; // Disponível, não selecionado
-                    hover = "hover:bg-teal-400";
-                }
-            }
-            
-            return (
-              <div
-                key={day}
-                className={`p-2 rounded-full text-sm font-medium transition-all ${bg} ${cursor} ${hover} ${ring}`}
-                onClick={() => handleDayClick(day)} // Adiciona o evento de clique
-              >
-                {day}
-              </div>
-            );
-          })}
+          <DatePicker selected={startDate} onChange={(date) => setStartDate(date)} locale={ptBR} dateFormat="P" />;
+          
         </div>
 
         {/* Exibe qual dia foi selecionado (Opcional, mas útil para debug/visualização) */}
@@ -813,7 +782,7 @@ return (
         <button onClick={agendar} 
           className="w-full bg-teal-500 text-white p-3 rounded-lg font-semibold text-lg shadow hover:bg-teal-600 disabled:bg-gray-400"
           // Exemplo: Desabilita se o dia não foi selecionado
-          disabled={!selectedDay} 
+          disabled={!startDate} 
         >
           Enviar Agendamento 
         </button>
@@ -1009,14 +978,15 @@ const VaccineConsultation = () => {
   );
 };
 
-const locations = [
-  { lat: 34.052235, lng: -118.243683, name: 'Location A' },
-  { lat: 34.052235, lng: -118.253683, name: 'Location B' },
-  { lat: 34.062235, lng: -118.243683, name: 'Location C' },
-];
 
 function MyMapComponent() {
   const mapId = "YOUR_MAP_ID";
+
+  const [ubses, setubses] = useState([])
+
+  useEffect(() => {
+    UbsService.ubs().then(d => setubses(d)).catch(console.log)
+  },[])
 
   return (
     <div className="w-full max-w-4xl pt-4">
@@ -1026,12 +996,12 @@ function MyMapComponent() {
       >
         <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
           <Map
-            center={{ lat: 34.052235, lng: -118.243683 }}
+            center={{ lat: -23.063, lng: -47.19 }}
             zoom={12}
             mapId={mapId}
           >
-            {locations.map((location, index) => (
-              <Marker key={index} position={{ lat: location.lat, lng: location.lng }}>
+            {ubses.map((location, index) => (
+              <Marker key={index} position={{ lat: location.latitude, lng: location.longitude }}>
                 <Pin background={'#FBBC04'} glyphColor={'#000'} borderColor={'#000'} />
               </Marker>
             ))}

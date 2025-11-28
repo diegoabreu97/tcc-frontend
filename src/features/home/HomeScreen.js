@@ -9,16 +9,16 @@ import ImageUploadComponent from './components/ImageUploadComponent';
 
 const HomeScreen = () => {
   //const {logout} = useAuth()
-  const {logout, user} = useAuthStore();
+  // const {logout, user} = useAuthStore();
   const {tipo, info} = useUserStore();
-  const {byPassImage, setByPassImage} = React.useState(false)
+  // const {byPassImage, setByPassImage} = React.useState(false)
 
   React.useEffect(() => {
       // proibido metodo async
       // metodo().then(resposta => ...).catch(erro => ...)
   }, [])
 
-  if(user && user.registerState == "IMAGE_CREATED" || byPassImage){
+  // if(user && user.registerState == "IMAGE_CREATED" || byPassImage){
 
   return (
     <div>
@@ -27,17 +27,17 @@ const HomeScreen = () => {
       {tipo == "STANDARD" && <StandardHome info={info} />}
       {tipo == "GUEST" && <GuestHome info={info} />}
     </div>
-  )
- } else {
-  return(
-     <div>
-     <ImageUploadComponent />
-        <button onClick={() => setByPassImage(true)}>Skip Image upload</button>
-     </div>
+  )}
+//  } else {
+//   return(
+//      <div>
+//      <ImageUploadComponent />
+//         <button onClick={() => setByPassImage(true)}>Skip Image upload</button>
+//      </div>
      
-  );
+//   );
   
- }
-}
+//  }
+
 
 export default HomeScreen
