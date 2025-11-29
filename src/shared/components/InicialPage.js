@@ -614,15 +614,39 @@ const AgendamentoScreen = () => {
 
   
 
-  const agendar = async (e) =>{
-    e.preventDefault()
-    await AgendamentoService.agendar({
-      tipoDePaciente: faixaEtaria.toUpperCase(), 
-      ubsId: selectedUBS, 
-      atendimentoId:selectedAtendimento,
-      horario: startDate
-    })
-  }
+const agendar = async (e) => {
+    e.preventDefault();
+    // const navigate = useNavigate(); // <-- ESTA LINHA É OPCIONAL SE NÃO FOR USAR O navigate
+    
+    // Defina a URL específica para onde você quer redirecionar
+    const URL_DE_DESTINO = '/#/home'; // SUBSTITUA PELO SEU CAMINHO ESPECÍFICO!
+
+    try {
+        await AgendamentoService.agendar({
+            tipoDePaciente: faixaEtaria.toUpperCase(), 
+            ubsId: selectedUBS, 
+            atendimentoId: selectedAtendimento,
+            horario: startDate
+        });
+
+        // -----------------------------------------------------------------
+        
+        alert("Agendamento realizado!");
+        
+        // Redireciona para a URL específica APÓS o sucesso e o alerta
+        // É bom manter o setTimeout para garantir que o alerta feche antes do redirecionamento.
+        setTimeout(() => {
+            window.location.href = URL_DE_DESTINO; 
+        }, 100); 
+        
+        // -----------------------------------------------------------------
+        
+    } catch (error) {
+        // ... (catch block)
+        console.error("Erro ao agendar:", error);
+        alert("Ocorreu um erro ao realizar o agendamento. Tente novamente.");
+    }
+};
 
     const [ubses, setubses] = useState([])
 

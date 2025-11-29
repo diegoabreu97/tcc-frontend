@@ -37,7 +37,7 @@ export const requestForToken = async () => {
 
         if (permission === 'granted') {
             const currentToken = await getToken(messaging, { 
-                vapidKey: process.env.VAPID_KEY 
+                vapidKey: process.env.REACT_APP_VAPID_KEY
             });
 
             if (currentToken) {

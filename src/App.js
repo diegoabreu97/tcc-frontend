@@ -78,7 +78,7 @@ const App = () => {
                 (ou talvez devesse ser InicialPage também?)
                 Vamos manter seu original por via das dúvidas.
             */}
-            <Route path="*" element={<HomeScreen />} /> 
+            {/* <Route path="*" element={<HomeScreen />} />  */}
 
             {/* REMOVEMOS as rotas que davam erro:
             <Route element={<InicialPage />}> 
