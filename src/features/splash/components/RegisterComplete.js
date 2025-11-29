@@ -27,15 +27,22 @@ const RegisterComplete = ({ goBackToRegister, form, setForm }) => {
 
 
 
-
+//Deu certo, é o que importa
   const submitForm = async (e) => {
     e.preventDefault();
 
-    // Isso eu pego do backend
-    const responseData = await LoginService.register(form)
+    try {
+      // 1. Faz o registro no backend
+      const responseData = await LoginService.register(form);
+      
+      console.log("Registro OK. Forçando ida para o login...");
 
+      // 2. FORÇA O REDIRECIONAMENTO (Isso vai funcionar independente das rotas do React)
+      window.location.href = '/*'; 
 
-
+    } catch (error) {
+      console.error("Erro ao registrar:", error);
+    }
   }
 
   const adminForm = [
